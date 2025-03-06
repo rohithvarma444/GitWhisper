@@ -10,11 +10,17 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model User{
+    id             String @id @unique
+    firstName      String?
+    lastName       String?
+    email          String @unique
+    password       String
 
-    @@index([name])
+
+    imageUrl       String?
+    credits        Int @default(150)
+
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
 }
