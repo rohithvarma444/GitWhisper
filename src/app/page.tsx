@@ -1,15 +1,12 @@
-import { api, HydrateClient } from "@/trpc/server";
+"use client";
+
 import { Button } from "@/components/ui/button";
 
-export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
-
-  
-
+export default function Home() {
   return (
-    <HydrateClient>
-      <h1>Hello </h1>
-      <Button> Click Me </Button>
-    </HydrateClient>
+    <div>
+      <h1>Hello</h1>
+      <Button>Click Me</Button>
+    </div>
   );
 }

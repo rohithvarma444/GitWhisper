@@ -1,43 +1,46 @@
-"use server";
-
+import { auth } from "@clerk/nextjs/server"; 
+import { clerkClient } from "@clerk/nextjs/server";
 import { db } from "@/server/db";
-import { auth, clerkClient } from "@clerk/nextjs/server";
-import { notFound, redirect } from "next/navigation";
 
-const SyncUser = async () => {
-    const { userId } = await auth();
+export default async function SyncUser() {
+    const { userId } =await  auth(); // Correct way to get userId in App Router
 
     if (!userId) {
-        return notFound();
+        return <p>Not authenticated</p>;
     }
 
-    // Fetch user details from Clerk
-    const user = await clerkClient.users.getUser(userId);
+    try {
+        const client = await clerkClient();
+        const clerkUser = await client.users.getUser(userId);
 
-    if (!user || !user.emailAddresses[0]?.emailAddress) {
-        return notFound();
-    }
-
-    // Upsert user into the database
-    await db.user.upsert({
-        where: {
-            email: user.emailAddresses[0].emailAddress
-        },
-        update: {
-            imageUrl: user.imageUrl,
-            firstName: user.firstName,
-            lastName: user.lastName,
-        },
-        create: {
-            id: user.id,
-            email: user.emailAddresses[0].emailAddress,
-            imageUrl: user.imageUrl,
-            firstName: user.firstName,
-            lastName: user.lastName,
+        if (!clerkUser) {
+            throw new Error("User not found in Clerk");
         }
-    });
 
-    return redirect("/dashboard");
-};
+        console.log("Syncing user:", clerkUser);
 
-export default SyncUser;
+        const existingUser = await db.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!existingUser) {
+            // Create new user in Prisma (Neon DB)
+            await db.user.create({
+                data: {
+                    id: userId,
+                    firstName: clerkUser.firstName ?? "",
+                    lastName: clerkUser.lastName ?? "",
+                    email: clerkUser.emailAddresses[0]?.emailAddress ?? "",
+                    password: "", // Clerk handles authentication
+                    imageUrl: clerkUser.imageUrl,
+                },
+            });
+            console.log("New user added to the database:", userId);
+        }
+
+    } catch (error) {
+        console.error("Error syncing user:", error);
+    }
+
+    return <h1>Syncing user {userId}</h1>;
+}
