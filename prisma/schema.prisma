@@ -15,9 +15,6 @@ model User{
     firstName      String?
     lastName       String?
     email          String @unique
-    password       String
-
-
     imageUrl       String?
     credits        Int @default(150)
 
