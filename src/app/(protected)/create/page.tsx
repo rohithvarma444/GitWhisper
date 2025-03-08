@@ -2,6 +2,9 @@
 
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { projectRouter } from '@/server/api/routers/project';
+import { api } from '@/trpc/react';
+import { toast } from 'sonner';
 
 type FormInput = {
   repoUrl: string;
@@ -12,9 +15,23 @@ type FormInput = {
 const CreatePage = () => {
   const { register, handleSubmit, reset } = useForm<FormInput>();
 
+  const createProject = api.project.createProject.useMutation();
+
   const onSubmit = (data: FormInput) => {
-    console.log("Form submitted:", data);
-    reset();
+    createProject.mutate({
+        githubUrl: data.repoUrl,
+        name: data.projectName,
+        githubToken: data.githubToken ? data.githubToken : "",
+    }, {
+        onSuccess: () => {
+            toast.success('Project created successfully')
+            reset();
+        },
+
+        onError: () => {
+            toast.error('Error in creating project')
+        }
+    })
   };
 
   return (
@@ -58,7 +75,7 @@ const CreatePage = () => {
             <label className="block text-sm font-medium">GitHub Token (Optional)</label>
             <input
               type="password"
-              {...register("githubToken")}
+              {...register("token")}
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter GitHub token"
             />

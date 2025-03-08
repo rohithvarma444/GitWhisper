@@ -6,10 +6,10 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-
+import { auth } from "@clerk/nextjs/server";
 import { db } from "@/server/db";
 
 /**
@@ -79,6 +79,25 @@ export const createTRPCRouter = t.router;
  * You can remove this if you don't like it, but it can help catch unwanted waterfalls by simulating
  * network latency that would occur in production but not in local development.
  */
+
+const isAuthenticated = t.middleware(async ({ next, ctx }) => {
+  const user = await  auth(); 
+
+  if (!user) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "The user is not authorized to use this endpoint",
+    });
+  }
+
+  return next({
+    ctx: {
+      user, // Pass userId to context
+      ...ctx,
+     },
+  });
+});
+
 const timingMiddleware = t.middleware(async ({ next, path }) => {
   const start = Date.now();
 
@@ -104,3 +123,4 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
+export const protectedProcedure = publicProcedure.use(isAuthenticated);
