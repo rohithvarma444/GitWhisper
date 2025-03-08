@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  Sidebar,
-  SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -12,15 +10,13 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import Image from "next/image";
-
-import logo from '../../../../public/logo.png';
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Bot, CreditCard, Home, Presentation, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Bot, CreditCard, Home, Presentation, Plus, Divide } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
-import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import git from "../../../../public/gitbg.png";
+import { Button } from "@/components/ui/button";
 
 const items = [
   { title: "Dashboard", icon: Home, href: "/dashboard" },
@@ -35,20 +31,42 @@ const projects = [
 ];
 
 export function AppSideBar() {
+  const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
 
+  // Auto-collapse on screen resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setCollapsed(true);
+      } else {
+        setCollapsed(false);
+      }
+    };
+
+    // Initial check
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
-    <Sidebar collapsible="icon" variant="floating">
+    <div
+      className={cn(
+        "h-screen bg-white shadow-md transition-all duration-300 ease-in-out",
+        collapsed ? "w-16" : "w-64"
+      )}
+    >
       {/* Sidebar Header */}
-      <SidebarHeader className="text-2xl font-bold">
-        <div className="flex">
-            <h2 className="text-2xl">GitRAG</h2>
-        </div>
+      <SidebarHeader className="flex flex-row">
+        <Image src={git} alt="GitRAG Logo" width={40} height={40} />
+        {!collapsed && <span className="mt-1 text-2xl font-bold">GitRAG</span>}
       </SidebarHeader>
 
       {/* Applications */}
       <SidebarGroup>
-        <SidebarGroupLabel>Applications</SidebarGroupLabel>
+        {!collapsed && <SidebarGroupLabel>Applications</SidebarGroupLabel>}
         <SidebarGroupContent>
           <SidebarMenu>
             {items.map((item, index) => (
@@ -62,7 +80,7 @@ export function AppSideBar() {
                     )}
                   >
                     <item.icon className="w-5 h-5" />
-                    <span>{item.title}</span>
+                    {!collapsed && <span>{item.title}</span>}
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -73,7 +91,7 @@ export function AppSideBar() {
 
       {/* Projects Section */}
       <SidebarGroup>
-        <SidebarGroupLabel>Your Projects</SidebarGroupLabel>
+        {!collapsed && <SidebarGroupLabel>Your Projects</SidebarGroupLabel>}
         <SidebarGroupContent>
           <SidebarMenu>
             {projects.map((project, index) => {
@@ -88,33 +106,29 @@ export function AppSideBar() {
                         isActive ? "bg-primary text-white" : "hover:bg-gray-200"
                       )}
                     >
-                      {/* First Letter Icon */}
-                      <div
-                        className={cn(
-                          "w-7 h-7 flex items-center justify-center text-sm rounded-md",
-                          true ? "bg-black text-white" : "bg-white text-black border border-gray-400"
-                        )}
-                      >
+                      <div className="w-7 h-7 flex items-center justify-center text-sm rounded-md bg-black text-white">
                         {project.title.charAt(0)}
                       </div>
-                      <span>{project.title}</span>
+                      {!collapsed && <span>{project.title}</span>}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               );
             })}
 
-
-            <SidebarMenuItem>
-                <Link href = '/create' >
-                <Button variant={"outline"} className="w-fit mt-2">Create Project</Button>
+            {!collapsed && (
+              <SidebarMenu className="mt-2">
+                <Link href="/create">
+                  <Button variant="outline" className="w-full flex items-center gap-2">
+                    <Plus />
+                    Create Project
+                  </Button>
                 </Link>
-        </SidebarMenuItem>
+              </SidebarMenu>
+            )}
           </SidebarMenu>
-
-       
         </SidebarGroupContent>
       </SidebarGroup>
-    </Sidebar>
+    </div>
   );
 }

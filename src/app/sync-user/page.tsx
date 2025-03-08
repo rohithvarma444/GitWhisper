@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server"; 
 import { clerkClient } from "@clerk/nextjs/server";
 import { db } from "@/server/db";
-import { redirect } from "next/dist/server/api-utils";
+import { redirect } from "next/navigation";
 
 export default async function SyncUser() {
     const { userId } =await  auth(); // Correct way to get userId in App Router
@@ -42,5 +42,5 @@ export default async function SyncUser() {
         console.error("Error syncing user:", error);
     }
 
-    return redirect("/dashboard");
+    return redirect("/dashboard"); 
 }
