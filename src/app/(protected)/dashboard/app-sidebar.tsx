@@ -11,12 +11,14 @@ import {
 } from "@/components/ui/sidebar";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Bot, CreditCard, Home, Presentation, Plus, Divide } from "lucide-react";
+import { Bot, CreditCard, Home, Presentation, Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import git from "../../../../public/gitbg.png";
 import { Button } from "@/components/ui/button";
+import useProjects from "@/hooks/use-projects";
+import useRefetch from "@/hooks/use-refetch";
 
 const items = [
   { title: "Dashboard", icon: Home, href: "/dashboard" },
@@ -25,23 +27,16 @@ const items = [
   { title: "Billing", icon: CreditCard, href: "/billing" },
 ];
 
-const projects = [
-  { title: "Project 1", href: "/project/1" },
-  { title: "Project 2", href: "/project/2" },
-];
-
 export function AppSideBar() {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const refetch = useRefetch();
+  const { projects, projectId, setProjectId } = useProjects();
 
   // Auto-collapse on screen resize
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth <= 768) {
-        setCollapsed(true);
-      } else {
-        setCollapsed(false);
-      }
+      setCollapsed(window.innerWidth <= 768);
     };
 
     // Initial check
@@ -59,9 +54,9 @@ export function AppSideBar() {
       )}
     >
       {/* Sidebar Header */}
-      <SidebarHeader className="flex flex-row">
+      <SidebarHeader className="flex flex-row items-center gap-2 p-3">
         <Image src={git} alt="GitRAG Logo" width={40} height={40} />
-        {!collapsed && <span className="mt-1 text-2xl font-bold">GitRAG</span>}
+        {!collapsed && <span className="text-2xl font-bold">GitRAG</span>}
       </SidebarHeader>
 
       {/* Applications */}
@@ -94,22 +89,23 @@ export function AppSideBar() {
         {!collapsed && <SidebarGroupLabel>Your Projects</SidebarGroupLabel>}
         <SidebarGroupContent>
           <SidebarMenu>
-            {projects.map((project, index) => {
-              const isActive = pathname === project.href;
+            {projects?.map((project) => {
+              const isActive = project.id === projectId;
               return (
-                <SidebarMenuItem key={index}>
+                <SidebarMenuItem key={project.id}>
                   <SidebarMenuButton asChild>
                     <Link
-                      href={project.href}
+                      href="/dashboard"
                       className={cn(
                         "flex items-center gap-3 p-2 rounded-md transition",
                         isActive ? "bg-primary text-white" : "hover:bg-gray-200"
                       )}
+                      onClick={() => setProjectId(project.id)} // ✅ Properly updates the selected project
                     >
                       <div className="w-7 h-7 flex items-center justify-center text-sm rounded-md bg-black text-white">
-                        {project.title.charAt(0)}
+                        {project.name.charAt(0)}
                       </div>
-                      {!collapsed && <span>{project.title}</span>}
+                      {!collapsed && <span>{project.name}</span>}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

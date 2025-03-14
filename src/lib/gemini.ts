@@ -5,7 +5,7 @@ const model = gemini.getGenerativeModel({
     model: 'gemini-1.5-flash'
 });
 
-export const summariseCommit = async (diff: string) => {
+export const aiSummariseCommit = async (diff: string) => {
     try {
         
         const prompt = `

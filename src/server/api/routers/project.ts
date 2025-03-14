@@ -16,14 +16,33 @@ export const projectRouter = createTRPCRouter({
         data: {
           githubUrl: input.githubUrl,
           name: input.name,
-          UserToProject: {
-            create: {
-              userId: ctx.user.userId, 
-            },
-          },
+        },
+      });
+
+      if(!ctx.user.userId){
+        throw new Error('User not found');
+      }
+      await ctx.db.userToProject.create({
+        data: {
+          userId: ctx.user.userId,
+          projectId: project.id, // ✅ Ensure project exists before linking
         },
       });
 
       return project;
     }),
+
+
+    getProjects : protectedProcedure.query(async({ctx}) => {
+      return ctx.db.project.findMany({
+        where: {
+          UserToProject:{
+            some:{
+              userId: ctx.user.userId!
+            }
+          },
+          deletedAt: null
+        }
+      })
+    })
 });

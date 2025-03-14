@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { projectRouter } from '@/server/api/routers/project';
 import { api } from '@/trpc/react';
 import { toast } from 'sonner';
+import useRefetch from '@/hooks/use-refetch';
 
 type FormInput = {
   repoUrl: string;
@@ -14,6 +15,7 @@ type FormInput = {
 
 const CreatePage = () => {
   const { register, handleSubmit, reset } = useForm<FormInput>();
+  const refetch = useRefetch();
 
   const createProject = api.project.createProject.useMutation();
 
@@ -25,13 +27,14 @@ const CreatePage = () => {
     }, {
         onSuccess: () => {
             toast.success('Project created successfully')
-            reset();
+            refetch()
         },
 
         onError: () => {
             toast.error('Error in creating project')
         }
     })
+    reset()
   };
 
   return (
@@ -75,7 +78,7 @@ const CreatePage = () => {
             <label className="block text-sm font-medium">GitHub Token (Optional)</label>
             <input
               type="password"
-              {...register("token")}
+              {...register("githubToken")}
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter GitHub token"
             />
@@ -84,7 +87,8 @@ const CreatePage = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            disabled={createProject.isPending}
+            className="w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary:100 transition"
           >
             Link Repository
           </button>

@@ -1,51 +1,57 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model User{
-    id             String @id @unique
-    firstName      String?
-    lastName       String?
-    email          String @unique
-    imageUrl       String?
-    credits        Int @default(150)
-
-    createdAt      DateTime @default(now())
-    updatedAt      DateTime @updatedAt
-
-
-    UserToProject  UserToProject[]
+model User {
+  id            String          @id @unique
+  firstName     String?
+  lastName      String?
+  email         String          @unique
+  imageUrl      String?
+  credits       Int             @default(150)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  UserToProject UserToProject[]
 }
 
-model Project{
-    id          String @id @unique @default(cuid()) 
-    name         String 
-    githubUrl    String
-
-    deletedAt    DateTime?
-    createdAt    DateTime @default(now())
-    updatedAt    DateTime @updatedAt
-
-    UserToProject  UserToProject[]
+model Project {
+  id            String          @id @unique @default(cuid())
+  name          String
+  githubUrl     String
+  deletedAt     DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  UserToProject UserToProject[]
+  Commits       Commit[]
 }
+
 model UserToProject {
-    id          String   @id @default(cuid()) 
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
-    userId      String
-    projectId   String
+  @@unique([userId, projectId])
+}
 
-    user        User    @relation(fields: [userId], references: [id])
-    project     Project @relation(fields: [projectId], references: [id])
 
-    @@unique([userId, projectId])
+model Commit {
+  id                   String   @id @default(cuid())
+  commitHash           String
+  commitMessage        String
+  commitAuthor         String
+  commitAuthorAvatarUrl String
+  commitDate           DateTime
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  projectId            String
+  project              Project  @relation(fields: [projectId], references: [id])
 }
