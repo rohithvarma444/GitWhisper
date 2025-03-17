@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
+import { Document } from '@langchain/core/documents';
 const gemini = new GoogleGenerativeAI("AIzaSyAmKDxAeINhTQbR3lrrUnE5rh5NWVUswHQ");
+
+
 const model = gemini.getGenerativeModel({
     model: 'gemini-1.5-flash'
 });
@@ -71,50 +73,54 @@ ${diff}
         return response.response.text();
     } catch (error) {
         console.error("Error generating commit summary:", error);
-        return "Failed to summarize commit.";
+        return "";
     }
 };
 
+ export const summariseCode = async (doc: Document): Promise<string> => {
+   console.log("🔹 Generating embeddings for source code...");
+ 
+   const codeSnippet = doc.pageContent.slice(0, 10000); // ✅ Limit code snippet size
+ 
+   const prompt = `
+     You are a senior developer. Your task is to summarize the following source code 
+     for a **junior developer** who is new to this project.
+ 
+     **File Name:** ${doc.metadata.source}
+ 
+     **Code Snippet:**
+     -------------------
+     ${codeSnippet}
+     -------------------
+ 
+     🎯 **Summarization Guidelines:**
+     - Explain the purpose and functionality of the code.
+     - Keep the summary concise (**max 100 words**).
+     - Use clear, simple language.
+     - Format the summary as a **single paragraph**.
+   `;
+ 
+   try {
+     const embeddings = await model.generateContent([prompt]);
+     return await embeddings.response.text(); 
+   } catch (error) {
+     console.error(`❌ Error generating summary for ${doc.metadata.source}:`, error);
+     return "Error generating summary.";
+   }
+ };
 
-summariseCommit(`
-    diff --git a/prisma/schema.prisma b/prisma/schema.prisma
-    index 75ef225..f8592fc 100644
-    --- a/prisma/schema.prisma
-    +++ b/prisma/schema.prisma
-    @@ -20,4 +20,32 @@ model User{
-     
-         createdAt      DateTime @default(now())
-         updatedAt      DateTime @updatedAt
-    +
-    +    UserToProject  UserToProject[]
-    +}
-    +
-    +model Project{
-    +    id          String @id @unique @default(cuid()) 
-    +    name        String 
-    +    githubUrl   String
-    +
-    +    deletedAt   DateTime?
-    +    createdAt   DateTime @default(now())
-    +    updatedAt   DateTime @updatedAt
-    +
-    +    UserToProject  UserToProject[]
-    +}
-    +
-    +model UserToProject {
-    +    id          String   @id @default(cuid()) 
-    +    createdAt   DateTime @default(now())
-    +    updatedAt   DateTime @updatedAt
-    +
-    +    userId      String
-    +    projectId   String
-    +
-    +    user        User    @relation(fields: [userId], references: [id])
-    +    project     Project @relation(fields: [projectId], references: [id])
-    +
-    +    @@unique([userId, projectId])
-     }
-    ...
-    `)
-      .then(console.log)  // Logs the resolved summary
-      .catch(console.error);  // Logs any errors encountered
+
+ export const generateEmbedding = async (summary: string): Promise<number[]> => {
+   try {
+     const embeddingModel = gemini.getGenerativeModel({
+       model: "embedding-001",
+     });
+ 
+     const result = await embeddingModel.embedContent(summary);
+ 
+     return result.embedding.values;
+   } catch (error) {
+     console.error("❌ Error generating embedding:", error);
+     return [];
+   }
+ };

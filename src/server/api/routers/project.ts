@@ -1,6 +1,6 @@
-import { db } from "@/server/db";
 import { publicProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
+import { pollCommits } from "@/lib/github";
 
 export const projectRouter = createTRPCRouter({
   createProject: protectedProcedure
@@ -19,30 +19,58 @@ export const projectRouter = createTRPCRouter({
         },
       });
 
-      if(!ctx.user.userId){
-        throw new Error('User not found');
+      if (!ctx.user.userId) {
+        throw new Error("User not found");
       }
+
       await ctx.db.userToProject.create({
         data: {
           userId: ctx.user.userId,
-          projectId: project.id, // ✅ Ensure project exists before linking
+          projectId: project.id,
         },
       });
 
+      console.log(project.id);
+      await pollCommits(project.id);
       return project;
     }),
 
-
-    getProjects : protectedProcedure.query(async({ctx}) => {
-      return ctx.db.project.findMany({
-        where: {
-          UserToProject:{
-            some:{
-              userId: ctx.user.userId!
-            }
+  getProjects: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.db.project.findMany({
+      where: {
+        UserToProject: {
+          some: {
+            userId: ctx.user.userId!,
           },
-          deletedAt: null
-        }
+        },
+        deletedAt: null,
+      },
+    });
+  }),
+
+  getCommits: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
       })
-    })
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.db.commit.findMany({
+        where: {
+          projectId: input.projectId,
+        },
+        select: {
+          id: true,
+          commitHash: true,
+          commitMessage: true,
+          commitAuthor: true,
+          commitAuthorAvatarUrl: true,
+          commitDate: true,
+          summary: true,
+        },
+        orderBy: {
+          commitDate: "desc",
+        },
+      });
+    }),
 });

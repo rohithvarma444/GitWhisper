@@ -1,10 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
 }
 
 model User {
@@ -20,14 +22,15 @@ model User {
 }
 
 model Project {
-  id            String          @id @unique @default(cuid())
-  name          String
-  githubUrl     String
-  deletedAt     DateTime?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  UserToProject UserToProject[]
-  Commits       Commit[]
+  id                  String                @id @unique @default(cuid())
+  name                String
+  githubUrl           String
+  deletedAt           DateTime?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  Commits             Commit[]
+  SourceCodeEmbedding SourceCodeEmbedding[]
+  UserToProject       UserToProject[]
 }
 
 model UserToProject {
@@ -42,16 +45,26 @@ model UserToProject {
   @@unique([userId, projectId])
 }
 
-
 model Commit {
-  id                   String   @id @default(cuid())
-  commitHash           String
-  commitMessage        String
-  commitAuthor         String
+  id                    String   @id @default(cuid())
+  commitHash            String
+  commitMessage         String
+  commitAuthor          String
   commitAuthorAvatarUrl String
-  commitDate           DateTime
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  projectId            String
-  project              Project  @relation(fields: [projectId], references: [id])
+  commitDate            DateTime
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  projectId             String
+  summary               String?
+  project               Project  @relation(fields: [projectId], references: [id])
+}
+
+model SourceCodeEmbedding {
+  id               String                 @id @default(cuid())
+  summaryEmbedding Unsupported("vector")?
+  sourceCode       String
+  fileName         String
+  summary          String
+  projectId        String
+  project          Project                @relation(fields: [projectId], references: [id])
 }

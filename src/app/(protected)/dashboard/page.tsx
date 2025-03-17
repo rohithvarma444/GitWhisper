@@ -6,6 +6,7 @@ import useProjects from '@/hooks/use-projects';
 import { Github } from 'lucide-react';
 import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import CommitLog from './commit-log';
 
 const DashboradPage = () => {
     const {project} = useProjects();
@@ -13,7 +14,7 @@ const DashboradPage = () => {
 
     return(
         <div>
-            <div className='flex items-center justify-between flex-wrap gap-4'>
+            <div className='flex flex-col  justify-between flex-wrap gap-4'>
                 <div className='flex w-fit bg-primary text-white p-2 rounded-md'>
                     <Github className='size-5 text-white'/>
                     <div className='flex  ml-2 items-center'>
@@ -22,7 +23,15 @@ const DashboradPage = () => {
                         <ExternalLink className='size-5'/>
                     </div>
 
+                    
+
                 </div>
+
+                <div className='flex gap-4'>
+                   <div>ask question</div>
+                   <div>meetings</div>
+                </div>
+                <CommitLog/>
 
             </div>
         </div>

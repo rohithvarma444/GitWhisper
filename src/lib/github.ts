@@ -2,12 +2,12 @@ import { Octokit } from 'octokit';
 import { db } from '@/server/db';
 import axios from 'axios';
 import { aiSummariseCommit } from './gemini';
+import { error } from 'console';
 
 export const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN
 });
 
-const GITHUB_URL = 'https://github.com/';
 
 type Response = {
     commitHash: string;
@@ -20,11 +20,18 @@ type Response = {
 export const getCommitHashes = async (githubUrl: string): Promise<Response[]> => {
     const [owner, repo] = githubUrl.split('/').slice(-2);
 
+    console.log(owner, repo);
+
     if (!owner || !repo) {
         throw new Error("Invalid GitHub URL");
     }
 
     const { data } = await octokit.rest.repos.listCommits({ owner, repo });
+
+    console.log("----------------------------------------------------------");
+    console.log(data);
+    console.log("----------------------------------------------------------");
+
 
     return data.map((commit: any) => ({
         commitHash: commit.sha,
@@ -48,19 +55,24 @@ export const pollCommits = async (projectId: string) => {
         response.status === 'fulfilled' ? response.value : ""
     );
 
-    const commit = await db.commit.createMany({
-        data: unprocessedCommits.map((commit, index) => ({
-            projectId,
-            commitHash: commit.commitHash,
-            commitMessage: commit.commitMessage,
-            commitAuthor: commit.commitAuthor,
-            commitDate: commit.commitDate,
-            commitAuthorAvatarUrl: commit.commitAuthorAvatar,
-            summary: summaries[index] ?? ""
-        }))
-    });
+    console.log("These are the ai summaries that are generared", summaries);
 
-    return commit;
+    try{
+        const commit = await db.commit.createMany({
+            data: unprocessedCommits.map((commit, index) => ({
+                projectId,
+                commitHash: commit.commitHash,
+                commitMessage: commit.commitMessage,
+                commitAuthor: commit.commitAuthor,
+                commitDate: commit.commitDate,
+                commitAuthorAvatarUrl: commit.commitAuthorAvatar,
+                summary: summaries[index] ?? ""
+            }))
+        });
+    }
+    catch (error){
+        console.log("Error in creating commit", error);
+    }
 };
 
 const summariseCommit = async (githubUrl: string, commitHash: string) => {
@@ -70,6 +82,8 @@ const summariseCommit = async (githubUrl: string, commitHash: string) => {
         `https://github.com/${owner}/${repo}/commit/${commitHash}.diff`,
         { headers: { accept: 'application/vnd.github.v3.diff' } }
     );
+
+    console.log("Have reached till here near summarise content");
 
     return await aiSummariseCommit(data) || "";
 };
@@ -82,6 +96,7 @@ const getProjectDetails = async (projectId: string) => {
 
     if (!project?.githubUrl) {
         throw new Error('Project not found');
+
     }
 
     return { project, githubUrl: project.githubUrl };
