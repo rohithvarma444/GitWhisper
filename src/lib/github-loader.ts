@@ -9,7 +9,7 @@ export const loadGithubRepo = async (repoUrl: string, githubToken?: string) => {
     const loader = new GithubRepoLoader(repoUrl, {
       accessToken: githubToken,
       branch: "main",
-      ignoreFiles: ["node_modules", "dist", "build", "coverage", "test", "tests"],
+      ignoreFiles: ["node_modules", "dist", "build", "coverage", "test", "tests","package-lock.json","package.json",".bundle",".gitignore",".env",".env.local",".env.development",".env.test",".env.production",".env.local",".env.development.local",".env.test.local",".env.production.local"],
       recursive: true,
       unknown: 'warn',
       maxConcurrency: 5,
@@ -23,32 +23,42 @@ export const loadGithubRepo = async (repoUrl: string, githubToken?: string) => {
 };
 
 export const indexGithubRepo = async (projectId: string, githubUrl: string, githubToken?: string) => {
-  try {
-    const docs = await loadGithubRepo(githubUrl, githubToken);
-    const allEmbeddings = await getEmbeddings(docs);
+    try {
+      const docs = await loadGithubRepo(githubUrl, githubToken);
+      const allEmbeddings = await getEmbeddings(docs);
+  
+      await Promise.all(
+        allEmbeddings.map(async (embedding) => {
+          if (!embedding) return;
+  
+          const sourceCodeEmbeddings = await db.sourceCodeEmbedding.create({
+            data: {
+              summary: embedding.summary,
+              sourceCode: embedding.sourceCode,
+              fileName: embedding.fileName,
+              projectId,
+            },
+          });
 
-    await Promise.all(
-      allEmbeddings.map(async (embedding) => {
-        if (!embedding) return;
 
-        await db.sourceCodeEmbedding.create({
-          data: {
-            projectId,
-            fileName: embedding.fileName,
-            sourceCode: embedding.sourceCode,
-            summary: embedding.summary,
-            summaryEmbedding: embedding.embedding,
-          },
-        });
-      })
-    );
+          
+  
+          const insertembeddings = await db.$executeRaw`
+            UPDATE "SourceCodeEmbedding"
+            SET "summaryEmbedding" = ${embedding.embedding}
+            WHERE id = ${sourceCodeEmbeddings.id}
+          `;
 
-    console.log(`Successfully indexed repository: ${githubUrl}`);
-  } catch (error) {
-    console.error("Error indexing GitHub repository:", error);
-    throw new Error("Failed to index GitHub repository.");
-  }
-};
+          console.log(insertembeddings ? `Successfully indexed source code: ${embedding.fileName}` : "Failed to index source code.");
+        })
+      );
+  
+      console.log(`Successfully indexed repository: ${githubUrl}`);
+    } catch (error) {
+      console.error("Error indexing GitHub repository:", error);
+      throw new Error("Failed to index GitHub repository.");
+    }
+  };
 
 const getEmbeddings = async (docs: Document[]) => {
   try {

@@ -2,12 +2,15 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Document } from '@langchain/core/documents';
 const gemini = new GoogleGenerativeAI("AIzaSyAmKDxAeINhTQbR3lrrUnE5rh5NWVUswHQ");
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const model = gemini.getGenerativeModel({
     model: 'gemini-1.5-flash'
 });
 
 export const aiSummariseCommit = async (diff: string) => {
+   await sleep(1000); 
+   await sleep(1000); 
     try {
         
         const prompt = `

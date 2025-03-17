@@ -7,6 +7,7 @@ import { Github } from 'lucide-react';
 import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import CommitLog from './commit-log';
+import AskQuestion from './ask-question';
 
 const DashboradPage = () => {
     const {project} = useProjects();
@@ -27,8 +28,8 @@ const DashboradPage = () => {
 
                 </div>
 
-                <div className='flex gap-4'>
-                   <div>ask question</div>
+                <div className='flex'>
+                   <AskQuestion/>
                    <div>meetings</div>
                 </div>
                 <CommitLog/>
