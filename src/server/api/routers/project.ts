@@ -32,7 +32,6 @@ export const projectRouter = createTRPCRouter({
       });
 
       await indexGithubRepo(project.id, input.githubUrl, input.githubToken);
-      
       await pollCommits(project.id);
       return project;
     }),
@@ -72,6 +71,27 @@ export const projectRouter = createTRPCRouter({
         },
         orderBy: {
           commitDate: "desc",
+        },
+      });
+    }),
+
+  saveAnswer: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        fileReferences: z.any(),
+        answer: z.string(),
+        question: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.question.create({
+        data: {
+          answer: input.answer,
+          fileReferences: input.fileReferences,
+          question: input.question,
+          projectId: input.projectId,
+          userId: ctx.user.userId!,
         },
       });
     }),
