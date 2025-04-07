@@ -28,7 +28,6 @@ const AskQuestion = () => {
   // Fix: Properly use useMutation
   const saveAnswerMutation = api.project.saveAnswer.useMutation();
 
-  // Function to reset state when dialog is closed
   const handleDialogClose = (isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen) {
@@ -46,7 +45,7 @@ const AskQuestion = () => {
 
     setLoading(true);
     setOpen(true);
-    setAnswer(""); // Clear previous response
+    setAnswer(""); 
 
     try {
       const { output, fileReference } = await askQuestion(question, project.id);

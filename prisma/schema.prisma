@@ -18,8 +18,8 @@ model User {
   credits       Int             @default(150)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
+  Question      Question[]
   UserToProject UserToProject[]
-  Question            Question[]
 }
 
 model Project {
@@ -30,9 +30,10 @@ model Project {
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   Commits             Commit[]
+  Questions           Question[]
   SourceCodeEmbedding SourceCodeEmbedding[]
   UserToProject       UserToProject[]
-  Questions           Question[]
+  Meetings            Meeting[]
 }
 
 model UserToProject {
@@ -61,20 +62,52 @@ model Commit {
   project               Project  @relation(fields: [projectId], references: [id])
 }
 
-model Question{
-  id        String   @id @default(cuid())
+model Question {
+  id             String   @id @default(cuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  question       String
+  fileReferences Json?
+  projectId      String
+  userId         String
+  answer         String
+  project        Project  @relation(fields: [projectId], references: [id])
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+model Meeting{
+  id             String @id @default(cuid())
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  meetingUrl     String
+  projectId      String
+  project        Project @relation(fields: [projectId], references: [id])
+  issues         Issue[]
+  name           String
   
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  status         MeetingStatus
+}
 
-  question String
-  answer   String
+model Issue{
+  id           String @id @default(cuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  fileReferences  Json?
-  projectId  String
-  project    Project  @relation(fields: [projectId], references: [id])
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
+  gist         String
+  summary      String
+  start        String
+  end          String
+  headline     String
+
+  meetingId    String
+  meeting      Meeting @relation(fields: [meetingId], references: [id])
+}
+
+
+enum MeetingStatus{
+  PROCESSING
+  SUCCESS
 }
 
 model SourceCodeEmbedding {

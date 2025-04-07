@@ -2,6 +2,7 @@ import { publicProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { pollCommits } from "@/lib/github";
 import { indexGithubRepo } from "@/lib/github-loader";
+import { deleteMeetingAudio } from "@/lib/cloudinary";
 
 export const projectRouter = createTRPCRouter({
   createProject: protectedProcedure
@@ -95,4 +96,79 @@ export const projectRouter = createTRPCRouter({
         },
       });
     }),
+
+  getQuestions: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string()
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.question.findMany({
+        where: {
+          projectId: input.projectId
+        },
+        include: {
+          user: true
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
+    }),
+
+  uploadMeeting: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        meetingUrl: z.string(),
+        name: z.string()
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.meeting.create({
+        data: {
+          meetingUrl: input.meetingUrl,
+          projectId: input.projectId,
+          name: input.name,
+          status: "PROCESSING"
+        }
+      });
+    }),
+
+  getMeetings: protectedProcedure
+    .input(
+      z.object({ 
+        projectId: z.string() 
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.meeting.findMany({
+        where: { 
+          projectId: input.projectId 
+        }
+      });
+    }),
+
+  deleteMeeting: protectedProcedure.input(z.object({
+    meetingId: z.string()
+  })).mutation(async ({ ctx, input }) => {
+    const meetingUrl = await ctx.db.meeting.findUnique({
+      where:{
+        id: input.meetingId
+      }
+    });
+
+    if (meetingUrl?.meetingUrl) {
+      await deleteMeetingAudio(meetingUrl.meetingUrl);
+    }
+
+    await ctx.db.meeting.delete({
+      where: {
+        id: input.meetingId
+      }
+    });
+
+    return true;
+  }),
 });

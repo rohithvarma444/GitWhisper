@@ -1,6 +1,6 @@
-# **GitRAG** 🚀  
+# **RepoPilot   ** 🚀  
 
-GitRAG is a powerful platform designed to help developers efficiently manage and track their GitHub repositories. It provides seamless integration with GitHub, allowing users to link their repositories, manage projects, and collaborate effectively.  
+RepoPilot    is a powerful platform designed to help developers efficiently manage and track their GitHub repositories. It provides seamless integration with GitHub, allowing users to link their repositories, manage projects, and collaborate effectively.  
 
 ## **🛠 Tech Stack**
 - **Frontend:** Next.js, React, Tailwind CSS, ShadCN  
