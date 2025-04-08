@@ -100,20 +100,20 @@ export const projectRouter = createTRPCRouter({
   getQuestions: protectedProcedure
     .input(
       z.object({
-        projectId: z.string()
+        projectId: z.string(),
       })
     )
     .query(async ({ ctx, input }) => {
       return await ctx.db.question.findMany({
         where: {
-          projectId: input.projectId
+          projectId: input.projectId,
         },
         include: {
-          user: true
+          user: true,
         },
         orderBy: {
-          createdAt: 'desc'
-        }
+          createdAt: "desc",
+        },
       });
     }),
 
@@ -122,7 +122,7 @@ export const projectRouter = createTRPCRouter({
       z.object({
         projectId: z.string(),
         meetingUrl: z.string(),
-        name: z.string()
+        name: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -131,44 +131,130 @@ export const projectRouter = createTRPCRouter({
           meetingUrl: input.meetingUrl,
           projectId: input.projectId,
           name: input.name,
-          status: "PROCESSING"
-        }
+          status: "PROCESSING",
+        },
       });
     }),
 
   getMeetings: protectedProcedure
     .input(
-      z.object({ 
-        projectId: z.string() 
+      z.object({
+        projectId: z.string(),
       })
     )
     .query(async ({ ctx, input }) => {
       return await ctx.db.meeting.findMany({
-        where: { 
-          projectId: input.projectId 
-        }
+        where: {
+          projectId: input.projectId,
+        },
       });
     }),
 
-  deleteMeeting: protectedProcedure.input(z.object({
-    meetingId: z.string()
-  })).mutation(async ({ ctx, input }) => {
-    const meetingUrl = await ctx.db.meeting.findUnique({
-      where:{
-        id: input.meetingId
-      }
-    });
+  deleteMeeting: protectedProcedure
+    .input(
+      z.object({
+        meetingId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const meetingUrl = await ctx.db.meeting.findUnique({
+        where: {
+          id: input.meetingId,
+        },
+      });
 
-    if (meetingUrl?.meetingUrl) {
-      await deleteMeetingAudio(meetingUrl.meetingUrl);
+      if (meetingUrl?.meetingUrl) {
+        await deleteMeetingAudio(meetingUrl.meetingUrl);
+      }
+
+      await ctx.db.meeting.delete({
+        where: {
+          id: input.meetingId,
+        },
+      });
+
+      return true;
+    }),
+
+  deleteProject: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.project.update({
+        where: {
+          id: input.projectId,
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      });
+
+      return true;
+    }),
+
+  getTeamMembers: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.userToProject.findMany({
+        where: {
+          projectId: input.projectId,
+        },
+        include: {
+          user: true,
+        },
+      });
+    }),
+    getMyCredits: protectedProcedure.input(z.object({ userId: z.string()})).query(async ({ ctx, input }) => {
+      return await ctx.db.user.findFirst({
+        where:{
+          id: input.userId
+        },
+        select:{
+          credits: true
+        }
+      })
+    }),
+    getTransactions: protectedProcedure.input(z.object({ userId: z.string()})).query(async ({ ctx, input }) => {
+      return await ctx.db.billing.findMany({
+        where:{
+          userId: input.userId
+        },
+        orderBy:{
+          createdAt: 'desc'
+        }
+      })
+    }),
+    addCredits: protectedProcedure.input(z.object({ userId: z.string(), credits: z.number()})).mutation(async ({ ctx, input }) => {
+      return await ctx.db.user.update({
+        where:{
+          id: input.userId
+        },
+        data:{
+          credits: {
+            increment: input.credits
+          }
+        }
+      })
+    }),
+    deductCredits: protectedProcedure.input(z.object({ userId: z.string(), credits: z.number()})).mutation(async ({ ctx, input }) => {
+      return await ctx.db.user.update({
+        where:{
+          id: input.userId
+        },
+        data:{
+          credits: {
+            decrement: input.credits
+          }
+        }
+      })
     }
+  )
 
-    await ctx.db.meeting.delete({
-      where: {
-        id: input.meetingId
-      }
-    });
-
-    return true;
-  }),
 });

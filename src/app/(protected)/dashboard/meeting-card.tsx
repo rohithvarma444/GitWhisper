@@ -12,6 +12,8 @@ import { api } from '@/trpc/react'
 import useProjects from '@/hooks/use-projects'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import { useMutation } from '@tanstack/react-query'
+import axios from 'axios'
 
 function MeetingCard() {
   const [progress, setProgress] = useState<number | undefined>(undefined)
@@ -21,6 +23,16 @@ function MeetingCard() {
   const uploadMeeting = api.project.uploadMeeting.useMutation();
   const { projectId } = useProjects();
   const router = useRouter();
+
+  const processMeeting = useMutation({mutationFn: async (data: {meetingId: string , projectId: string,meetingUrl: string}) => {
+    const { meetingId, projectId, meetingUrl } = data;
+    const response = await axios.post('/api/process-meeting', {
+      meetingId,
+      projectId,
+      meetingUrl
+    }) 
+    return response;
+  }})
 
 
 
@@ -55,6 +67,11 @@ function MeetingCard() {
         onSuccess: () => {
             toast.success("Meeting uploaded successfully")
             router.push('/meetings')
+            processMeeting.mutate({
+              meetingId: uploadMeeting?.data?.id as string,
+              projectId: projectId,
+              meetingUrl: uploadUrl
+            })
             refetch();
         },
 

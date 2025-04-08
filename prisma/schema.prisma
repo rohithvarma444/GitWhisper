@@ -20,6 +20,18 @@ model User {
   updatedAt     DateTime        @updatedAt
   Question      Question[]
   UserToProject UserToProject[]
+  billing        Billing[]
+}
+
+model Billing{
+  id       String @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId   String
+  user     User   @relation(fields: [userId], references: [id])
+  orderId  String
+  amount  Int
+  credits Int
 }
 
 model Project {
@@ -107,7 +119,7 @@ model Issue{
 
 enum MeetingStatus{
   PROCESSING
-  SUCCESS
+  COMPLETED
 }
 
 model SourceCodeEmbedding {
