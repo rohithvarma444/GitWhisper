@@ -1,26 +1,30 @@
-# gitRAG
+# gitRAG 🚀
 
-A powerful tool for analyzing GitHub repositories and meetings using RAG (Retrieval-Augmented Generation).
+> A powerful tool for analyzing GitHub repositories and meetings using RAG (Retrieval-Augmented Generation).
 
-## Features
+![gitRAG Logo](public/gitbg.png)
 
-- **GitHub Repository Analysis**: Connect and analyze any GitHub repository
-- **Meeting Transcription**: Upload and process meeting audio files
-- **AI-Powered Q&A**: Ask questions about your codebase and get intelligent answers
-- **Commit Analysis**: Track and understand code changes over time
-- **Real-time Processing**: Get instant insights from your meetings and code
+## ✨ Features
 
-## Tech Stack
+- 🔍 **GitHub Repository Analysis**: Connect and analyze any GitHub repository
+- 🎙️ **Meeting Transcription**: Upload and process meeting audio files
+- 🤖 **AI-Powered Q&A**: Ask questions about your codebase and get intelligent answers
+- 📊 **Commit Analysis**: Track and understand code changes over time
+- ⚡ **Real-time Processing**: Get instant insights from your meetings and code
 
-- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
-- **Backend**: tRPC, Prisma
-- **Database**: PostgreSQL
-- **AI**: Google Gemini, AssemblyAI
-- **Authentication**: Clerk
-- **File Storage**: Cloudinary
-- **Deployment**: Vercel
+## 🛠️ Tech Stack
 
-## Getting Started
+| Category | Technologies |
+|----------|--------------|
+| **Frontend** | Next.js 14, React, TypeScript, Tailwind CSS |
+| **Backend** | tRPC, Prisma |
+| **Database** | PostgreSQL |
+| **AI** | Google Gemini, AssemblyAI |
+| **Authentication** | Clerk |
+| **File Storage** | Cloudinary |
+| **Deployment** | Vercel |
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
@@ -33,22 +37,22 @@ A powerful tool for analyzing GitHub repositories and meetings using RAG (Retrie
 
 ### Installation
 
-1. Clone the repository:
+1. **Clone the repository**:
    ```bash
    git clone https://github.com/rohithvarma444/gitrag.git
    cd gitrag
    ```
 
-2. Install dependencies:
+2. **Install dependencies**:
    ```bash
    bun install
    # or
    npm install
    ```
 
-3. Set up environment variables:
+3. **Set up environment variables**:
    Create a `.env` file in the root directory with the following variables:
-   ```
+   ```env
    # Database
    DATABASE_URL="postgresql://user:password@localhost:5432/gitrag"
    
@@ -67,14 +71,14 @@ A powerful tool for analyzing GitHub repositories and meetings using RAG (Retrie
    ASSEMBLYAI_API_KEY=your_assemblyai_key
    ```
 
-4. Set up the database:
+4. **Set up the database**:
    ```bash
    bun run db:push
    # or
    npm run db:push
    ```
 
-5. Start the development server:
+5. **Start the development server**:
    ```bash
    bun run dev
    # or
@@ -83,25 +87,25 @@ A powerful tool for analyzing GitHub repositories and meetings using RAG (Retrie
 
 6. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Usage
+## 📖 Usage
 
-1. **Create a Project**:
-   - Connect your GitHub repository
-   - The system will automatically index your codebase
+### 1. Create a Project
+- Connect your GitHub repository
+- The system will automatically index your codebase
 
-2. **Upload Meetings**:
-   - Upload audio files from your meetings
-   - The system will transcribe and analyze the content
+### 2. Upload Meetings
+- Upload audio files from your meetings
+- The system will transcribe and analyze the content
 
-3. **Ask Questions**:
-   - Use the Q&A interface to ask questions about your code
-   - Get AI-powered answers with code references
+### 3. Ask Questions
+- Use the Q&A interface to ask questions about your code
+- Get AI-powered answers with code references
 
-4. **View Meeting Analysis**:
-   - Access detailed insights from your meetings
-   - Track processing status and view results
+### 4. View Meeting Analysis
+- Access detailed insights from your meetings
+- Track processing status and view results
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 gitrag/
@@ -118,13 +122,27 @@ gitrag/
 └── package.json         # Dependencies
 ```
 
-## Acknowledgments
+## 🤝 Contributing
 
-- [Next.js](https://nextjs.org/)
-- [tRPC](https://trpc.io/)
-- [Prisma](https://www.prisma.io/)
-- [Clerk](https://clerk.dev/)
-- [Cloudinary](https://cloudinary.com/)
-- [Google AI](https://ai.google.dev/)
-- [AssemblyAI](https://www.assemblyai.com/)
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- [Next.js](https://nextjs.org/) - React framework
+- [tRPC](https://trpc.io/) - End-to-end typesafe APIs
+- [Prisma](https://www.prisma.io/) - Next-generation ORM
+- [Clerk](https://clerk.dev/) - Authentication
+- [Cloudinary](https://cloudinary.com/) - Media management
+- [Google AI](https://ai.google.dev/) - AI capabilities
+- [AssemblyAI](https://www.assemblyai.com/) - Speech-to-text
 
