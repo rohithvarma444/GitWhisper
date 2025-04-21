@@ -2,8 +2,6 @@
 
 > A powerful tool for analyzing GitHub repositories and meetings using RAG (Retrieval-Augmented Generation).
 
-![gitRAG Logo](public/gitbg.png)
-
 ## ✨ Features
 
 - 🔍 **GitHub Repository Analysis**: Connect and analyze any GitHub repository
