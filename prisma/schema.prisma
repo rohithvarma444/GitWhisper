@@ -18,20 +18,20 @@ model User {
   credits       Int             @default(150)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
+  billing       Billing[]
   Question      Question[]
   UserToProject UserToProject[]
-  billing        Billing[]
 }
 
-model Billing{
-  id       String @id @default(cuid())
+model Billing {
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  userId   String
-  user     User   @relation(fields: [userId], references: [id])
-  orderId  String
-  amount  Int
-  credits Int
+  userId    String
+  orderId   String
+  amount    Int
+  credits   Int
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Project {
@@ -42,10 +42,10 @@ model Project {
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   Commits             Commit[]
+  Meetings            Meeting[]
   Questions           Question[]
   SourceCodeEmbedding SourceCodeEmbedding[]
   UserToProject       UserToProject[]
-  Meetings            Meeting[]
 }
 
 model UserToProject {
@@ -87,39 +87,29 @@ model Question {
   user           User     @relation(fields: [userId], references: [id])
 }
 
-model Meeting{
-  id             String @id @default(cuid())
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  meetingUrl     String
-  projectId      String
-  project        Project @relation(fields: [projectId], references: [id])
-  issues         Issue[]
-  name           String
-  
-  status         MeetingStatus
+model Meeting {
+  id         String        @id @default(cuid())
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  meetingUrl String
+  projectId  String
+  name       String
+  status     MeetingStatus
+  issues     Issue[]
+  project    Project       @relation(fields: [projectId], references: [id])
 }
 
-model Issue{
-  id           String @id @default(cuid())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  gist         String
-  summary      String
-  start        String
-  end          String
-  headline     String
-
-  meetingId    String
-  meeting      Meeting @relation(fields: [meetingId], references: [id])
-}
-
-
-enum MeetingStatus{
-  PROCESSING
-  COMPLETED
+model Issue {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  gist      String
+  summary   String
+  start     String
+  end       String
+  headline  String
+  meetingId String
+  meeting   Meeting  @relation(fields: [meetingId], references: [id])
 }
 
 model SourceCodeEmbedding {
@@ -129,5 +119,10 @@ model SourceCodeEmbedding {
   fileName         String
   summary          String
   projectId        String
-  project          Project                @relation(fields: [projectId], references: [id])
+  project          Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+enum MeetingStatus {
+  PROCESSING
+  COMPLETED
 }

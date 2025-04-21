@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import useProjects from "@/hooks/use-projects";
 import { Github, ExternalLink } from "lucide-react";
@@ -12,10 +12,18 @@ import { Button } from "@/components/ui/button";
 import ArchiveButton from "./archive-button";
 import TeamMembers from "./team-members";
 import Invite from "./invite";
+import { useRouter } from "next/navigation";
 
 const DashboradPage = () => {
   const { project } = useProjects();
   const { user } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!project) {
+      router.push("/create");
+    }
+  }, [project, router]);
 
   return (
     <div className="flex min-h-screen bg-gray-50">

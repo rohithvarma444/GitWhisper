@@ -14,27 +14,47 @@ export const projectRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const project = await ctx.db.project.create({
-        data: {
-          githubUrl: input.githubUrl,
-          name: input.name,
-        },
-      });
-
       if (!ctx.user.userId) {
         throw new Error("User not found");
       }
 
-      await ctx.db.userToProject.create({
-        data: {
-          userId: ctx.user.userId,
-          projectId: project.id,
-        },
+      const project = await ctx.db.$transaction(async (tx) => {
+        const createdProject = await tx.project.create({
+          data: {
+            githubUrl: input.githubUrl,
+            name: input.name,
+          },
+        });
+
+        await tx.userToProject.create({
+          data: {
+            userId: ctx.user.userId,
+            projectId: createdProject.id,
+          },
+        });
+
+        return createdProject;
       });
 
-      await indexGithubRepo(project.id, input.githubUrl, input.githubToken);
-      await pollCommits(project.id);
-      return project;
+      try {
+        await indexGithubRepo(project.id, input.githubUrl, input.githubToken);
+        await pollCommits(project.id);
+        return project;
+      } catch (error) {
+        await ctx.db.userToProject.deleteMany({
+          where: {
+            projectId: project.id,
+          },
+        });
+
+        await ctx.db.project.delete({
+          where: {
+            id: project.id,
+          },
+        });
+
+        throw new Error("Failed to index or poll commits: " + error);
+      }
     }),
 
   getProjects: protectedProcedure.query(async ({ ctx }) => {
@@ -76,7 +96,7 @@ export const projectRouter = createTRPCRouter({
       });
     }),
 
-  saveAnswer: protectedProcedure
+    saveAnswer: protectedProcedure
     .input(
       z.object({
         projectId: z.string(),
@@ -86,6 +106,18 @@ export const projectRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const existing = await ctx.db.question.findFirst({
+        where: {
+          question: input.question,
+          projectId: input.projectId,
+          userId: ctx.user.userId!,
+        },
+      });
+  
+      if (existing) {
+        throw new Error("Question already saved.");
+      }
+  
       return ctx.db.question.create({
         data: {
           answer: input.answer,

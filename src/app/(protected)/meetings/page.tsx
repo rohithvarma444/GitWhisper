@@ -1,6 +1,7 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button'; // Ensure this import is correct
 import { Trash2 } from 'lucide-react'; // Ensure this import is correct
 import MeetingCard from '../dashboard/meeting-card';
@@ -13,11 +14,18 @@ import useRefetch from '@/hooks/use-refetch';
 
 function MeetingPage() {
   const { projectId } = useProjects();
+  const router = useRouter();
   const { data: meetings, isLoading } = api.project.getMeetings.useQuery(
     { projectId },
     { refetchInterval: 4000 }
   );
   const refetch = useRefetch();
+
+  useEffect(() => {
+    if (!projectId) {
+      router.push('/create');
+    }
+  }, [projectId, router]);
 
   const deleteMeeting = api.project.deleteMeeting.useMutation({
     onSuccess: () => {

@@ -23,42 +23,39 @@ export const loadGithubRepo = async (repoUrl: string, githubToken?: string) => {
 };
 
 export const indexGithubRepo = async (projectId: string, githubUrl: string, githubToken?: string) => {
-    try {
-      const docs = await loadGithubRepo(githubUrl, githubToken);
-      const allEmbeddings = await getEmbeddings(docs);
-  
-      await Promise.all(
-        allEmbeddings.map(async (embedding) => {
-          if (!embedding) return;
-  
-          const sourceCodeEmbeddings = await db.sourceCodeEmbedding.create({
-            data: {
-              summary: embedding.summary,
-              sourceCode: embedding.sourceCode,
-              fileName: embedding.fileName,
-              projectId,
-            },
-          });
+  try {
+    const docs = await loadGithubRepo(githubUrl, githubToken);
+    const allEmbeddings = await getEmbeddings(docs);
 
+    await Promise.all(
+      allEmbeddings.map(async (embedding) => {
+        if (!embedding) return;
 
-          
-  
-          const insertembeddings = await db.$executeRaw`
-            UPDATE "SourceCodeEmbedding"
-            SET "summaryEmbedding" = ${embedding.embedding}
-            WHERE id = ${sourceCodeEmbeddings.id}
-          `;
+        const sourceCodeEmbeddings = await db.sourceCodeEmbedding.create({
+          data: {
+            summary: embedding.summary,
+            sourceCode: embedding.sourceCode,
+            fileName: embedding.fileName,
+            projectId,
+          },
+        });
 
-          console.log(insertembeddings ? `Successfully indexed source code: ${embedding.fileName}` : "Failed to index source code.");
-        })
-      );
-  
-      console.log(`Successfully indexed repository: ${githubUrl}`);
-    } catch (error) {
-      console.error("Error indexing GitHub repository:", error);
-      throw new Error("Failed to index GitHub repository.");
-    }
-  };
+        const insertembeddings = await db.$executeRaw`
+          UPDATE "SourceCodeEmbedding"
+          SET "summaryEmbedding" = ${embedding.embedding}
+          WHERE id = ${sourceCodeEmbeddings.id}
+        `;
+
+        console.log(insertembeddings ? `Successfully indexed source code: ${embedding.fileName}` : "Failed to index source code.");
+      })
+    );
+
+    console.log(`Successfully indexed repository: ${githubUrl}`);
+  } catch (error) {
+    console.error("Error indexing GitHub repository:", error);
+    throw new Error("Failed to index GitHub repository.");
+  }
+};
 
 const getEmbeddings = async (docs: Document[]) => {
   try {

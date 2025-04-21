@@ -10,6 +10,28 @@ const bodyParser = z.object({
 
 export const maxDuration = 300; // 5 minutes
 
+export const uploadMeetingAudio = async (
+  file: File,
+  projectId: string,
+  meetingId: string,
+  setProgress?: (progress: number) => void
+): Promise<string> => {
+  // logic to upload the audio file and resolve the URL
+  const url = await uploadFile(file, setProgress); // assuming this function exists
+
+  await fetch('/api/process-meeting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      projectId,
+      meetingUrl: url,
+      meetingId,
+    }),
+  });
+
+  return url;
+};
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();

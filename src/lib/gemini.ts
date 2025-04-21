@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Document } from '@langchain/core/documents';
-const gemini = new GoogleGenerativeAI("AIzaSyAmKDxAeINhTQbR3lrrUnE5rh5NWVUswHQ");
+const gemini = new GoogleGenerativeAI("AIzaSyCqGgouPD9VT13bD95V9HYkeTzBv-JG8kE");
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -9,121 +9,128 @@ const model = gemini.getGenerativeModel({
 });
 
 export const aiSummariseCommit = async (diff: string) => {
-   await sleep(1000); 
-   await sleep(1000); 
-    try {
-        
-        const prompt = `
-You are an **expert software engineer** skilled in analyzing Git diffs. Your task is to **analyze** the given Git diff and generate a **clear, concise, and structured summary** of the changes made in the commit.
-
-### **📌 Git Diff Format Reminder:**
-1. Each modified file starts with a metadata line:
-   - Example: \`diff --git a/src/index.js b/src/index.js\`
-2. File modification details are specified:
-   - **Lines added** start with \`+\`
-   - **Lines removed** start with \`-\`
-   - **Other lines** provide context and are not part of the actual change.
+  try {
+    const prompt = `
+You are an expert software engineer with extensive experience in analyzing Git diffs. Your task is to review the given Git diff and generate a clear, professional, and well-structured summary.
 
 ---
 
-### **🔹 Instructions for Generating the Summary:**
-1. **Identify the purpose of the commit**  
-   - What is the main goal of these changes? (Bug fix, feature addition, refactoring, optimization, etc.)
-
-2. **Summarize changes in a structured, human-readable format**  
-   - Provide a **short bullet-point summary** of the changes.
-   - If multiple files are affected, group them accordingly.
-
-3. **Include relevant details, but keep it concise**  
-   - **What changed?** (e.g., updated function, added validation, improved performance, refactored logic)
-   - **Why was it changed?** (if evident from the code)
-   - **Impact of the change?** (e.g., fixes a bug, improves efficiency, changes API behavior)
-
-4. **Follow a professional commit summary style**  
-   - Example format:
-     - "Fixed a security vulnerability in authentication flow [\`src/auth.js\`]"
-     - "Optimized database query performance by reducing redundant fetch calls [\`server/db.ts\`]"
-     - "Refactored logging mechanism to use a structured JSON format [\`logger.ts\`, \`config.ts\`]"
-
-5. **For large commits affecting multiple files**, avoid listing all filenames  
-   - Instead, say: "Refactored authentication logic across multiple modules."
+### 🔍 Input Format
+- The Git diff may span multiple files and show lines added (+), removed (-), or unchanged (context).
+- Metadata like \`diff --git a/file.js b/file.js\` indicates file-level changes.
 
 ---
 
-### **🔹 Example Summaries for Reference**
-✅ **Good Summaries:**
-- **Bug Fix**: Fixed authentication issue where incorrect passwords were not handled properly [\`auth.js\`]
-- **Feature Addition**: Implemented OpenAI API integration for text completion [\`utils/openai.ts\`]
-- **Refactoring**: Moved repeated functions to a new helper module [\`helpers.ts\`]
-- **Performance Optimization**: Improved caching logic to reduce API calls
-
-❌ **Bad Summaries (Too vague or unstructured):**
-- "Updated some files"
-- "Changed authentication"
-- "Added stuff"
-- "Refactored code"
+### ✨ Your Output Requirements
+- **Write the summary as bullet points**, starting each point with \`*\`.
+- Separate each bullet point with a **newline (\\n)**.
+- Focus on **clarity, purpose, and impact** of the changes.
+- **DO NOT** include the raw diff content or filenames unless they provide useful context.
+- Write in **past tense**.
 
 ---
 
-### **📌 Now analyze and summarize this Git diff:**
-\`\`\`
+### ✅ Good Summary Examples:
+* Fixed a login validation bug by adding input sanitization [\`auth/login.ts\`]
+* Added retry mechanism for failed API requests [\`utils/network.ts\`]
+* Refactored caching logic to improve memory usage
+* Removed deprecated helper function used across multiple modules
+
+---
+
+### ❌ Avoid:
+- Vague phrases like “updated code”, “made changes”, “did cleanup”
+- Redundant or verbose explanations
+
+---
+
+### 🧠 Instructions
+1. **Understand the purpose**: Identify if the commit is a bug fix, feature, refactor, or optimization.
+2. **Summarize impactfully**: What changed? Why? What’s the result?
+3. **Be concise and professional**
+
+---
+
+Now analyze the following Git diff and summarize the key changes as bullet points:
+
+\`\`\`diff
 ${diff}
 \`\`\`
 `;
-        const response = await model.generateContent([prompt]);
-        
 
-        return response.response.text();
-    } catch (error) {
-        console.error("Error generating commit summary:", error);
-        return "";
+    console.log("🧠 Generating commit summary...");
+
+    const response = await model.generateContent([prompt]);
+
+    if (!response?.response?.text) {
+      console.warn("⚠️ No response text returned from Gemini");
+      return "";
     }
+
+    const result = await response.response.text();
+    console.log("✅ Commit summary generated");
+    return result;
+  } catch (error) {
+    console.error("❌ Error generating commit summary:", error);
+    return "";
+  }
 };
 
- export const summariseCode = async (doc: Document): Promise<string> => {
-   console.log("🔹 Generating embeddings for source code...");
- 
-   const codeSnippet = doc.pageContent.slice(0, 10000); // ✅ Limit code snippet size
- 
-   const prompt = `
-     You are a senior developer. Your task is to summarize the following source code 
-     for a **junior developer** who is new to this project.
- 
-     **File Name:** ${doc.metadata.source}
- 
-     **Code Snippet:**
-     -------------------
-     ${codeSnippet}
-     -------------------
- 
-     🎯 **Summarization Guidelines:**
-     - Explain the purpose and functionality of the code.
-     - Keep the summary concise (**max 100 words**).
-     - Use clear, simple language.
-     - Format the summary as a **single paragraph**.
-   `;
- 
-   try {
-     const embeddings = await model.generateContent([prompt]);
-     return await embeddings.response.text(); 
-   } catch (error) {
-     console.error(`❌ Error generating summary for ${doc.metadata.source}:`, error);
-     return "Error generating summary.";
-   }
- };
+export const summariseCode = async (doc: Document): Promise<string> => {
+  console.log("🔹 Generating summarization for source code...");
 
+  const codeSnippet = doc.pageContent.slice(0, 10000); // ✅ Limit code snippet size
 
- export const generateEmbedding = async (summary: string): Promise<number[]> => {
-   try {
-     const embeddingModel = gemini.getGenerativeModel({
-       model: "embedding-001",
-     });
- 
-     const result = await embeddingModel.embedContent(summary);
- 
-     return result.embedding.values;
-   } catch (error) {
-     console.error("❌ Error generating embedding:", error);
-     return [];
-   }
- };
+  const prompt = `
+You are an experienced software engineer tasked with explaining source code functionality in a concise, professional manner. The goal is to help a developer or stakeholder understand what a particular file does in the context of a GitHub repository.
+
+---
+
+### 📄 File:
+${doc.metadata.source}
+
+### 📦 Code Snippet:
+-------------------
+${codeSnippet}
+-------------------
+
+### 📘 Guidelines:
+- Explain the **purpose**, **logic**, and **implementation** of this code.
+- Be clear and precise. Avoid unnecessary technical jargon.
+- Keep the response **brief and well-structured** (max 100 words).
+- Do not include greetings or narrative intros.
+- Focus on **what this code does** and **why it matters**.
+
+---
+
+### ✅ Example Output:
+This file implements a REST API handler for user authentication, including login, signup, and token verification. It validates input, checks credentials against the database, and responds with access tokens. Error handling ensures invalid requests are gracefully rejected.
+
+---
+
+Generate a similar summary for the provided code:
+`;
+
+  try {
+    const embeddings = await model.generateContent([prompt]);
+    return await embeddings.response.text();
+  } catch (error) {
+    console.error(`❌ Error generating summary for ${doc.metadata.source}:`, error);
+    return "Error generating summary.";
+  }
+};
+
+export const generateEmbedding = async (summary: string): Promise<number[]> => {
+  try {
+    const embeddingModel = gemini.getGenerativeModel({
+      model: "embedding-001",
+    });
+
+    const result = await embeddingModel.embedContent(summary);
+
+    return result.embedding.values;
+  } catch (error) {
+    console.error("❌ Error generating embedding:", error);
+    return [];
+  }
+};

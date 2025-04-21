@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button"; // Assuming this path is correct
+import { Button } from "@/components/ui/button"; 
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { motion } from "framer-motion"; // Removed AnimatePresence as it wasn't used directly here

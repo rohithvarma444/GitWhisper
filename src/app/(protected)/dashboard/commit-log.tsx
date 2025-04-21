@@ -20,6 +20,8 @@ const CommitLog = () => {
     projectId,
   });
 
+  console.log(commits);
+
   if (isLoading)
     return <p className="text-muted-foreground text-center">Loading commits...</p>;
   if (error)
