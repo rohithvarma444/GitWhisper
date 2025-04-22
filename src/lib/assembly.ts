@@ -16,10 +16,16 @@ const client = new AssemblyAI({
 
 export const getTranscription = async (audioUrl: string) => {
     try {
+        console.log('---------------------- log -----------------------');
+        console.log('Sending audio URL to AssemblyAI:', audioUrl);
+
         const transcript = await client.transcripts.transcribe({
             audio_url: audioUrl,
             auto_chapters: true,
         });
+
+        console.log('---------------------- log -----------------------');
+        console.log('Transcription result:', transcript);
 
         const summaries = transcript.chapters?.map((chapter) => ({
             start: msToTime(chapter.start),
@@ -29,12 +35,20 @@ export const getTranscription = async (audioUrl: string) => {
             headline: chapter.headline,
         })) || [];
 
+        console.log('---------------------- log -----------------------');
+        console.log('Generated summaries:', summaries);
+
         if(!transcript || !transcript.text) {
             throw new Error('Transcription failed');
         }
-         return {
-            transcript,summaries
-         }
+
+        console.log('---------------------- log -----------------------');
+        console.log('Returning transcription and summaries');
+
+        return {
+            transcript,
+            summaries
+        }
 
     } catch (error) {
         console.error('Error creating transcription:', error);

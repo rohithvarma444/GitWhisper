@@ -2,7 +2,8 @@ import { publicProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { pollCommits } from "@/lib/github";
 import { indexGithubRepo } from "@/lib/github-loader";
-import { deleteMeetingAudio } from "@/lib/cloudinary";
+import { deleteUploadedAudio } from "@/lib/cloudinary";
+import { getTranscription } from "@/lib/assembly";
 
 export const projectRouter = createTRPCRouter({
   createProject: protectedProcedure
@@ -189,23 +190,41 @@ export const projectRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const meetingUrl = await ctx.db.meeting.findUnique({
-        where: {
-          id: input.meetingId,
-        },
-      });
+      try {
+        console.log("Attempting to delete meeting:", input.meetingId);
 
-      if (meetingUrl?.meetingUrl) {
-        await deleteMeetingAudio(meetingUrl.meetingUrl);
+        const meeting = await ctx.db.meeting.findUnique({
+          where: {
+            id: input.meetingId,
+          },
+        });
+
+        if (!meeting) {
+          throw new Error("Meeting not found");
+        }
+
+        console.log("Found meeting:", meeting.id);
+
+        
+        await ctx.db.issue.deleteMany({
+          where: {
+            meetingId: meeting.id,
+          },
+        });
+
+        console.log("Deleting meeting from database...");
+        await ctx.db.meeting.delete({
+          where: {
+            id: input.meetingId,
+          },
+        });
+
+        console.log("Meeting deleted successfully.");
+        return true;
+      } catch (error) {
+        console.error("Error deleting meeting:", error);
+        throw new Error("Failed to delete meeting. Please try again.");
       }
-
-      await ctx.db.meeting.delete({
-        where: {
-          id: input.meetingId,
-        },
-      });
-
-      return true;
     }),
 
   deleteProject: protectedProcedure
@@ -287,6 +306,58 @@ export const projectRouter = createTRPCRouter({
         }
       })
     }
-  )
+  ),
+
+  processMeetingTranscription: protectedProcedure
+    .input(
+      z.object({
+        meetingId: z.string(),
+        projectId: z.string(),
+        meetingUrl: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { meetingId, projectId, meetingUrl } = input;
+      console.log("mid: " ,meetingId, "pid: ",projectId, "murl: ",meetingUrl)
+      console.log('---------------------- log -----------------------');
+      console.log('Processing meeting transcription:', { meetingId, projectId, meetingUrl });
+
+      const { summaries } = await getTranscription(meetingUrl);
+
+      console.log('---------------------- log -----------------------');
+      console.log('Transcription summaries:', summaries);
+
+      if (!summaries || !Array.isArray(summaries)) {
+        throw new Error('Invalid transcription data');
+      }
+
+      console.log('---------------------- log -----------------------');
+      console.log('Inserting summaries into DB:', summaries.length);
+
+      await ctx.db.issue.createMany({
+        data: summaries.map((summary) => ({
+          projectId,
+          meetingId,
+          start: summary.start,
+          end: summary.end,
+          summary: summary.summary,
+          gist: summary.gist,
+          headline: summary.headline,
+        })),
+      });
+
+      console.log('---------------------- log -----------------------');
+      console.log('Updating meeting status to COMPLETED:', meetingId);
+
+      await ctx.db.meeting.update({
+        where: { id: meetingId },
+        data: {
+          status: "COMPLETED",
+          name: summaries.length > 0 ? summaries[0]?.headline : "Meeting",
+        },
+      });
+
+      return { success: true };
+    }),
 
 });

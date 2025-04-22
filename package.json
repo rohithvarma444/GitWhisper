@@ -93,7 +93,6 @@
     "react-syntax-highlighter": "^15.6.1",
     "recharts": "^2.15.1",
     "server-only": "^0.0.1",
-    "signale": "^1.4.0",
     "sonner": "^2.0.1",
     "superjson": "^2.2.1",
     "tailwind-merge": "^3.0.2",

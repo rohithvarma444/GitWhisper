@@ -19,6 +19,7 @@ function MeetingPage() {
     { projectId },
     { refetchInterval: 4000 }
   );
+  
   const refetch = useRefetch();
 
   useEffect(() => {
@@ -26,6 +27,10 @@ function MeetingPage() {
       router.push('/create');
     }
   }, [projectId, router]);
+
+  useEffect(() => {
+    refetch();
+  }, []);
 
   const deleteMeeting = api.project.deleteMeeting.useMutation({
     onSuccess: () => {
@@ -67,7 +72,19 @@ function MeetingPage() {
                     {new Date(meeting.createdAt).toLocaleDateString()} — {new Date(meeting.createdAt).toLocaleTimeString()}
                   </p>
                   {meeting.status === 'PROCESSING' && (
-                    <Badge variant="secondary" className="text-xs mt-1">Processing</Badge>
+                    <Badge className="text-xs mt-1 bg-yellow-200 text-yellow-800 animate-pulse">
+                      Processing
+                    </Badge>
+                  )}
+                  {meeting.status === 'COMPLETED' && (
+                    <Badge className="text-xs mt-1 bg-green-200 text-green-800 animate-bounce">
+                      Completed
+                    </Badge>
+                  )}
+                  {meeting.status !== 'PROCESSING' && meeting.status !== 'COMPLETED' && (
+                    <Badge className="text-xs mt-1 bg-red-200 text-red-800">
+                      {meeting.status}
+                    </Badge>
                   )}
                 </div>
                 <div className="flex items-center gap-2">

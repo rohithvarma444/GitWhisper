@@ -401,7 +401,7 @@ export default function Home() {
                 </Link>
                 <Link href="#demo"> {/* Assuming #demo exists */}
                    {/* Contrasting secondary CTA */}
-                  <Button size="lg" variant="outline" className="border-white/70 text-white hover:bg-white/10 hover:border-white px-10 py-3 text-lg rounded-lg transition-all duration-300 transform hover:scale-105">
+                  <Button size="lg"  className="bg-indigo-600 text-white hover:bg-gradient-to-br  px-10 py-3 text-lg rounded-lg transition-all duration-300 transform hover:scale-105">
                     Request Demo
                   </Button>
                 </Link>

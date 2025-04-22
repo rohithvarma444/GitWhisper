@@ -42,6 +42,7 @@ model Project {
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   Commits             Commit[]
+  Issues              Issue[]
   Meetings            Meeting[]
   Questions           Question[]
   SourceCodeEmbedding SourceCodeEmbedding[]
@@ -109,7 +110,9 @@ model Issue {
   end       String
   headline  String
   meetingId String
+  projectId String
   meeting   Meeting  @relation(fields: [meetingId], references: [id])
+  project   Project  @relation(fields: [projectId], references: [id])
 }
 
 model SourceCodeEmbedding {
