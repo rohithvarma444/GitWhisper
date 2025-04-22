@@ -145,7 +145,7 @@ function QaPage() {
           >
             <DialogHeader className="px-6 py-3 border-b bg-gray-50 sticky top-0 z-10">
               <div className="flex items-center justify-between">
-                <DialogTitle className="text-xl font-semibold text-gray-800">GitRAG</DialogTitle>
+                <DialogTitle className="text-xl font-semibold text-gray-800">GitWhisper</DialogTitle>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"

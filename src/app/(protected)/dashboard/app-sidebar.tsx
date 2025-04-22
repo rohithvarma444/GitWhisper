@@ -55,8 +55,8 @@ export function AppSideBar() {
     >
       {/* Sidebar Header */}
       <SidebarHeader className="flex flex-row items-center gap-2 p-3">
-        <Image src={git} alt="GitRAG Logo" width={40} height={40} />
-        {!collapsed && <span className="text-2xl font-bold">GitRAG</span>}
+        <Image src={git} alt="GitWhisper Logo" width={40} height={40} />
+        {!collapsed && <span className="text-2xl font-bold">GitWhisper</span>}
       </SidebarHeader>
 
       {/* Applications */}

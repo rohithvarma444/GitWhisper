@@ -1,4 +1,4 @@
-# gitRAG 🚀
+# GitWhisper 🚀
 
 > A powerful tool for analyzing GitHub repositories and meetings using RAG (Retrieval-Augmented Generation).
 
@@ -37,8 +37,8 @@
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/rohithvarma444/gitrag.git
-   cd gitrag
+   git clone https://github.com/rohithvarma444/GitWhisper.git
+   cd GitWhisper
    ```
 
 2. **Install dependencies**:
@@ -52,7 +52,7 @@
    Create a `.env` file in the root directory with the following variables:
    ```env
    # Database
-   DATABASE_URL="postgresql://user:password@localhost:5432/gitrag"
+   DATABASE_URL="postgresql://user:password@localhost:5432/GitWhisper"
    
    # Authentication
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
@@ -106,7 +106,7 @@
 ## 📁 Project Structure
 
 ```
-gitrag/
+GitWhisper/
 ├── prisma/              # Database schema and migrations
 ├── public/              # Static assets
 ├── src/

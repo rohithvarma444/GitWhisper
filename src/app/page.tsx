@@ -21,6 +21,9 @@ import {
   Terminal // Example icon for demo
 } from "lucide-react";
 
+import git from "../../public/gitbg.png";
+import Image from "next/image";
+
 export default function Home() {
   const { user } = useUser();
   const [scrolled, setScrolled] = useState(false);
@@ -56,8 +59,16 @@ export default function Home() {
         <div className="container mx-auto flex items-center justify-between px-6">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <GitBranch className={`text-${colors.primary}-500 h-7 w-7`} /> {/* Slightly larger icon */}
-            <span className={`font-bold text-2xl text-${colors.primary}-400`}>gitRAG</span> {/* Brighter logo text */}
+          <Image 
+  src={git}
+  alt="GitWhisper Logo"
+  width={40}
+  height={40}
+  className="relative z-10"
+  priority
+  placeholder="blur"
+/>
+            <span className={`font-bold text-2xl text-${colors.primary}-400`}>GitWhisper</span> {/* Brighter logo text */}
           </div>
 
           {/* Navigation Links */}
@@ -77,12 +88,12 @@ export default function Home() {
               </Link>
             ) : (
               <div className="flex gap-3">
-                <Link href="/signin">
-                  <Button variant="outline" className={`border-${colors.primary}-700 text-gray-300 hover:text-white hover:bg-${colors.primary}-800/40 transition-all duration-200 ease-in-out`}>
+                <Link href="/sign-in">
+                  <Button variant="outline" className={`border-${colors.primary}-700 text-indigo-700 hover:text-indigo- hover:bg-${colors.primary}-800/40 transition-all duration-200 ease-in-out`}>
                     Login
                   </Button>
                 </Link>
-                <Link href="/signup">
+                <Link href="/sign-up">
                   <Button className={`bg-${colors.primary}-600 text-white hover:bg-${colors.primary}-500 shadow-lg shadow-${colors.primary}-800/60 transition-all hover:shadow-xl`}> {/* Brighter hover, stronger shadow */}
                     Get Started
                   </Button>
@@ -118,7 +129,7 @@ export default function Home() {
               {/* Main Heading - Gradient kept */}
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400"> {/* Adjusted gradient slightly */}
                 <span className="block">Accelerate Developer</span>
-                <span className="block">Onboarding with gitRAG</span>
+                <span className="block">Onboarding with GitWhisper</span>
               </h1>
               {/* Sub Heading */}
               <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
@@ -208,7 +219,7 @@ export default function Home() {
                   <div className="w-2/3 bg-gray-700/40 p-4 rounded-lg shadow-inner border border-gray-700/50">
                     <div className={`flex items-center gap-2 mb-3 text-${colors.tertiary}-400`}>
                       <MessageSquare className="w-5 h-5" />
-                      <span className="font-medium text-sm">Ask gitRAG</span>
+                      <span className="font-medium text-sm">Ask GitWhisper</span>
                     </div>
                     {/* User Question */}
                     <div className="border border-gray-600 rounded-lg p-3 text-sm bg-gray-800/60 mb-3 shadow">
@@ -251,7 +262,7 @@ export default function Home() {
       <section id="features" className="py-28 px-6 bg-gray-850"> {/* Slightly darker bg */}
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-20">
-            <h2 className={`text-4xl md:text-5xl font-bold mb-5 text-transparent bg-clip-text bg-gradient-to-r from-${colors.primary}-400 to-${colors.tertiary}-400`}>Why Teams Choose gitRAG</h2>
+            <h2 className={`text-4xl md:text-5xl font-bold mb-5 text-transparent bg-clip-text bg-gradient-to-r from-${colors.primary}-400 to-${colors.tertiary}-400`}>Why Teams Choose GitWhisper</h2>
             <p className="text-lg text-gray-400 max-w-3xl mx-auto">
               Shorten the learning curve for new team members and boost productivity across your engineering organization with AI-driven insights.
             </p>
@@ -290,9 +301,9 @@ export default function Home() {
       <section id="workflow" className="py-28 px-6 bg-gradient-to-b from-gray-850 to-gray-900"> {/* Gradient bg */}
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-20">
-             <h2 className={`text-4xl md:text-5xl font-bold mb-5 text-transparent bg-clip-text bg-gradient-to-r from-${colors.secondary}-400 to-${colors.primary}-400`}>How gitRAG Works</h2>
+             <h2 className={`text-4xl md:text-5xl font-bold mb-5 text-transparent bg-clip-text bg-gradient-to-r from-${colors.secondary}-400 to-${colors.primary}-400`}>How GitWhisper Works</h2>
             <p className="text-lg text-gray-400 max-w-3xl mx-auto">
-              Powered by retrieval-augmented generation (RAG), gitRAG creates an intelligent, searchable knowledge base from your code repositories.
+              Powered by retrieval-augmented generation (RAG), GitWhisper creates an intelligent, searchable knowledge base from your code repositories.
             </p>
           </div>
 
@@ -333,50 +344,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section - Colorful Quotes */}
-      <section id="testimonials" className="py-28 px-6 bg-gray-850">
-        <div className="container mx-auto max-w-7xl">
-          <div className="text-center mb-20">
-             <h2 className={`text-4xl md:text-5xl font-bold mb-5 text-transparent bg-clip-text bg-gradient-to-r from-${colors.tertiary}-400 to-${colors.success}-400`}>What Developers Say</h2>
-            <p className="text-lg text-gray-400 max-w-3xl mx-auto">
-              Hear from engineers who've transformed their onboarding and code navigation experience with gitRAG.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              // Using tertiary color for quotes/borders here
-              { quote: "gitRAG reduced our onboarding time by 40%. New engineers navigate our complex codebase in days, not weeks.", author: "Sarah Chen", role: "Lead Developer, Fintech Startup" },
-              { quote: "The ability to ask questions about our codebase in natural language is a game changer for our distributed team.", author: "Miguel Rodriguez", role: "Senior Engineer, Remote-First Co." },
-              { quote: "I use gitRAG daily to understand unfamiliar parts of our codebase. It's like having an expert pair programmer.", author: "Alex Johnson", role: "Full Stack Developer" }
-            ].map((testimonial, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                // Colored quote icon and border
-                className={`bg-gray-800 p-7 rounded-xl border border-gray-700/80 shadow-lg transition-all duration-300 ease-in-out border-l-4 border-${colors.tertiary}-500 hover:shadow-${colors.tertiary}-900/30`}
-              >
-                <div className="flex flex-col h-full">
-                  {/* Quote Icon - Colored */}
-                  <div className={`mb-5 text-${colors.tertiary}-400`}>
-                     <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="fill-current opacity-70">
-                        <path d="M9.99999 15C9.99999 13.3333 9.33332 11.8333 8.49999 10.5C7.66666 9.16667 6.66666 8 5.49999 7L5 8C6.16666 9.16667 7.16666 10.6667 7.99999 12.5C8.83332 14.3333 9.49999 16 9.99999 17H6L4 21H10V15ZM19 15C19 13.3333 18.3333 11.8333 17.5 10.5C16.6667 9.16667 15.6667 8 14.5 7L14 8C15.1667 9.16667 16.1667 10.6667 17 12.5C17.8333 14.3333 18.5 16 19 17H15L13 21H19V15Z"/>
-                     </svg>
-                  </div>
-                  <p className="text-gray-300 mb-6 flex-grow leading-relaxed italic">{testimonial.quote}</p> {/* Added italic */}
-                  <div className="mt-auto pt-4 border-t border-gray-700/50"> {/* Separator */}
-                    <p className="font-semibold text-gray-100">{testimonial.author}</p>
-                    <p className="text-sm text-gray-500">{testimonial.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      
 
       {/* CTA Section - Vibrant Gradient */}
       <section className="py-24 px-6 bg-gradient-to-br from-indigo-700 via-purple-700 to-indigo-600 text-white"> {/* Richer gradient */}
@@ -390,7 +358,7 @@ export default function Home() {
             >
               <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">Ready to Transform Your Development Workflow?</h2>
               <p className="text-xl opacity-90 mb-10">
-                Join forward-thinking engineering teams accelerating onboarding and boosting productivity with gitRAG.
+                Join forward-thinking engineering teams accelerating onboarding and boosting productivity with GitWhisper.
               </p>
               <div className="flex flex-col sm:flex-row gap-5 justify-center">
                 <Link href="/signup">
@@ -418,7 +386,7 @@ export default function Home() {
             {/* Footer Logo */}
              <div className="flex items-center gap-2 justify-center md:justify-start">
               <GitBranch className={`text-${colors.primary}-500 h-6 w-6`} />
-              <span className={`font-bold text-2xl text-${colors.primary}-400`}>gitRAG</span>
+              <span className={`font-bold text-2xl text-${colors.primary}-400`}>GitWhisper</span>
             </div>
 
             {/* Footer Links */}
@@ -445,7 +413,7 @@ export default function Home() {
 
           {/* Copyright */}
           <div className="pt-10 mt-10 border-t border-gray-800 text-center text-sm text-gray-500">
-            <p>© {new Date().getFullYear()} gitRAG Technologies Inc. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} GitWhisper Technologies Inc. All rights reserved.</p>
           </div>
         </div>
       </footer>

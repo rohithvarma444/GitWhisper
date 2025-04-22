@@ -102,7 +102,7 @@ function MeetingCard() {
               Create a New Meeting
             </h3>
             <p className='mt-1 text-center text-sm text-gray-500'>
-              Analysing your meeting with gitRAG
+              Analysing your meeting with GitWhisper
             </p>
             <div className='mt-6' {...getRootProps()}>
               <Button>

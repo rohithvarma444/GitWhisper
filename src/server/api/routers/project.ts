@@ -1,8 +1,7 @@
-import { publicProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
+import {  createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { pollCommits } from "@/lib/github";
 import { indexGithubRepo } from "@/lib/github-loader";
-import { deleteUploadedAudio } from "@/lib/cloudinary";
 import { getTranscription } from "@/lib/assembly";
 
 export const projectRouter = createTRPCRouter({
@@ -360,4 +359,35 @@ export const projectRouter = createTRPCRouter({
       return { success: true };
     }),
 
+    getIssues: protectedProcedure
+    .input(
+      z.object({
+        meetingId: z.string(),
+        projectId: z.string(),
+        userId: z.string()
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      console.log('Fetching issues for meeting:', input.meetingId, 'Project:', input.projectId, 'User:', input.userId);
+      const isValid = await ctx.db.userToProject.findFirst({
+        where:{
+          projectId: input.projectId,
+          userId: input.userId,
+        }
+      })
+
+      if (!isValid) {
+        console.warn("Access denied: User is not part of the project", input.userId, input.projectId);
+        throw new Error("Unauthorized: You are not a member of this project");
+      }
+
+      const issues = await ctx.db.issue.findMany({
+        where:{
+          meetingId: input.meetingId
+        }
+      });
+
+      console.log('Fetched issues:', issues.length);
+      return issues;
+    }),
 });

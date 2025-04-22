@@ -46,7 +46,7 @@ const CreatePage = () => {
       <div className="max-w-md w-full">
         <h1 className="text-2xl font-bold">Link to your Github Repository</h1>
         <p className="mb-4 text-gray-600">
-          Enter the URL for your repository to link it to GitRAG.
+          Enter the URL for your repository to link it to GitWhisper.
         </p>
 
         {/* Form */}
