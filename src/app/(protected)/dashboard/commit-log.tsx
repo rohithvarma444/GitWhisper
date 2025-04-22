@@ -2,17 +2,7 @@ import React from "react";
 import useProjects from "@/hooks/use-projects";
 import { api } from "@/trpc/react";
 import { cn } from "@/lib/utils";
-
-const parseSummary = (summary: string) => {
-  return summary
-    .split("\n")
-    .filter((line) => line.trim() !== "")
-    .map((line, idx) => (
-      <li key={idx} className="text-sm text-muted-foreground">
-        🔹 {line}
-      </li>
-    ));
-};
+import { MessageSquare, Clock } from "lucide-react";
 
 const CommitLog = () => {
   const { projectId } = useProjects();
@@ -20,41 +10,107 @@ const CommitLog = () => {
     projectId,
   });
 
-  console.log(commits);
+  if (isLoading) {
+    return (
+      <div className="flex h-40 items-center justify-center">
+        <p className="text-sm text-muted-foreground">Loading commits...</p>
+      </div>
+    );
+  }
 
-  if (isLoading)
-    return <p className="text-muted-foreground text-center">Loading commits...</p>;
-  if (error)
-    return <p className="text-destructive text-center">Error: {error.message}</p>;
+  if (error) {
+    return (
+      <div className="flex h-40 items-center justify-center">
+        <p className="text-sm text-destructive">Error: {error.message}</p>
+      </div>
+    );
+  }
+
+  if (!commits?.length) {
+    return (
+      <div className="flex h-40 items-center justify-center">
+        <p className="text-sm text-muted-foreground">No commits found</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 bg-card shadow-md rounded-lg">
-      <ul className="relative border-l-2 border-border pl-6 space-y-6">
-        {commits?.map((commit, commitIdx) => (
-          <li key={commit.id} className="relative flex items-start space-x-4">
-            <div className="absolute -left-3 w-6 h-6 flex items-center justify-center bg-secondary rounded-full border border-border">
-              <img
-                src={commit.commitAuthorAvatarUrl}
-                alt="Author Avatar"
-                className="w-6 h-6 rounded-full border border-white"
-              />
-            </div>
-
-            <div className="p-4 bg-muted rounded-lg shadow-sm w-full">
-              <p className="text-sm font-semibold text-foreground">{commit.commitAuthor}</p>
-              <p className="text-xs text-muted-foreground italic">{commit.commitMessage}</p>
-
-              {commit.summary && (
-                <ul className="mt-2 space-y-1">{parseSummary(commit.summary)}</ul>
-              )}
-
-              <p className="text-xs text-muted-foreground mt-2">
-                {new Date(commit.commitDate).toLocaleString()}
-              </p>
-            </div>
-          </li>
+    <div className="rounded-lg bg-card p-4 shadow-sm md:p-6">
+      <h3 className="mb-4 text-lg font-medium">Commit History</h3>
+      <div className="space-y-4">
+        {commits.map((commit) => (
+          <CommitCard key={commit.id} commit={commit} />
         ))}
-      </ul>
+      </div>
+    </div>
+  );
+};
+
+const CommitCard = ({ commit }) => {
+  const [expanded, setExpanded] = React.useState(false);
+  const hasSummary = commit.summary && commit.summary.trim() !== "";
+  
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    }).format(date);
+  };
+
+  return (
+    <div className="overflow-hidden rounded-md border border-border bg-background transition-all hover:bg-muted/30">
+      <div className="flex flex-col md:flex-row md:items-start">
+        <div className="flex items-center p-3 md:w-16 md:justify-center">
+          <div className="h-8 w-8 overflow-hidden rounded-full border border-border">
+            <img
+              src={commit.commitAuthorAvatarUrl || "/api/placeholder/32/32"}
+              alt={`${commit.commitAuthor}'s avatar`}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </div>
+        
+        <div className="flex-1 p-3 pt-0 md:pt-3">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <p className="font-medium text-foreground">{commit.commitAuthor}</p>
+            <div className="flex items-center text-xs text-muted-foreground">
+              <Clock size={12} className="mr-1" />
+              {formatDate(commit.commitDate)}
+            </div>
+          </div>
+          
+          <p className="mt-1 text-sm text-foreground">{commit.commitMessage}</p>
+          
+          {hasSummary && (
+            <div className="mt-2">
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="flex items-center text-xs font-medium text-muted-foreground hover:text-primary"
+              >
+                <MessageSquare size={12} className="mr-1" />
+                {expanded ? "Hide details" : "Show details"}
+              </button>
+              
+              {expanded && (
+                <ul className="mt-2 space-y-1 rounded-md bg-muted/50 p-3 text-sm">
+                  {commit.summary
+                    .split("\n")
+                    .filter((line) => line.trim() !== "")
+                    .map((line, idx) => (
+                      <li key={idx} className="text-xs text-muted-foreground md:text-sm">
+                        <span className="mr-2 text-primary">•</span>
+                        {line}
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
