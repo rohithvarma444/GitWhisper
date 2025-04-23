@@ -32,6 +32,7 @@ function MeetingCard() {
     maxSize: 100 * 1024 * 1024, 
     onDrop: async (acceptedFiles) => {
       setError(null);
+      console.log("📥 File dropped:", acceptedFiles);
       if (!acceptedFiles.length) {
         setError('No file was selected');
         return;
@@ -39,8 +40,10 @@ function MeetingCard() {
 
       const file = acceptedFiles[0] as File
       setIsUploading(true);
+      console.log("⏫ Uploading started...");
       try {
         const uploadUrl = await uploadMeetingAudio(file, setProgress);
+        console.log("✅ Upload complete, URL:", uploadUrl);
         if (!uploadUrl) {
           throw new Error('Failed to upload file');
         }
@@ -51,9 +54,14 @@ function MeetingCard() {
         },
         {
           onSuccess: async () => {
+            console.log("📤 Upload mutation successful");
+            console.log("here");
             setAudioUploaded(true);
+            console.log(uploadMeeting);
             if (uploadMeeting?.data?.id) {
+              console.log("inside inside")
               try {
+                console.log("🔁 Starting transcription process...");
                 await processMeeting.mutateAsync({
                   meetingId: uploadMeeting.data.id,
                   projectId: projectId,
@@ -63,12 +71,14 @@ function MeetingCard() {
                 toast.success("Meeting successfully processed!");
               } catch (error) {
                 console.error("Error during transcription process:", error);
+                console.error("❌ Transcription process failed");
                 toast.error("Error processing meeting.");
               }
             }
             refetch();
           },
           onError: () => {
+            console.error("❌ Upload mutation failed");
             toast.error("Meeting upload failed");
           }
         });
