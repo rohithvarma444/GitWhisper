@@ -3,7 +3,13 @@
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Built With](https://img.shields.io/badge/Built%20with-Next.js%2C%20tRPC%2C%20Prisma%2C%20Gemini%2C%20AssemblyAI-007ACC.svg?logo=nextdotjs)
 
-> Unlock insights from your GitHub repositories and meeting transcripts with the power of Retrieval-Augmented Generation (RAG). GitWhisper provides an intuitive platform to analyze code, track changes, and extract valuable information from discussions.
+Unlock insights from your GitHub repositories and meeting transcripts with the power of Retrieval-Augmented Generation (RAG). GitWhisper provides an intuitive platform to analyze code, track changes, and extract valuable information from discussions.
+
+
+## ▶️ Watch the Demo
+
+[Click here to watch a demo video of GitWhisper in action!](https://github.com/rohithvarma444/GitWhisper/blob/main/demo.mp4)
+*(Note: This link will open the video file hosted in the repository)*
 
 ## ✨ Features
 
