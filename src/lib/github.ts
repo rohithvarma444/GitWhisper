@@ -4,12 +4,10 @@ import axios from 'axios';
 import { aiSummariseCommit } from './gemini';
 import { log } from '@/lib/logger'; 
 
-// Initialize Octokit
 export const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN,
 });
 
-// Type Definitions
 type CommitInfo = {
     commitHash: string;
     commitMessage: string;
@@ -18,21 +16,18 @@ type CommitInfo = {
     commitAuthorAvatar: string;
 };
 
-// Utility: Extract owner and repo from GitHub URL
 const parseGithubUrl = (url: string): [string, string] => {
     const [owner, repo] = url.split('/').slice(-2);
     if (!owner || !repo) throw new Error("Invalid GitHub URL");
     return [owner, repo];
 };
 
-// GitHub: Fetch all commit details
 export const getCommitHashes = async (githubUrl: string): Promise<CommitInfo[]> => {
     const [owner, repo] = parseGithubUrl(githubUrl);
 
     const { data } = await octokit.rest.repos.listCommits({ owner, repo });
 
 
-    // Debug logs removed for cleaner output
 
     return data.map(commit => ({
         commitHash: commit.sha,
@@ -44,7 +39,6 @@ export const getCommitHashes = async (githubUrl: string): Promise<CommitInfo[]> 
 };
 
 
-// Core: Poll new commits and store summaries
 export const pollCommits = async (projectId: string) => {
     try {
         const { project, githubUrl } = await getProjectDetails(projectId);
@@ -61,6 +55,10 @@ export const pollCommits = async (projectId: string) => {
         const processed = summaries.map(res =>
             res.status === 'fulfilled' ? res.value : ""
         );
+
+        console.log("-----------------------------------------");
+        console.log(commit);
+        console.log('------------------------------------------');
 
 
         const inserted = await db.commit.createMany({
@@ -82,7 +80,6 @@ export const pollCommits = async (projectId: string) => {
 
 
 
-// AI: Summarise a single commit
 const summariseCommit = async (githubUrl: string, commitHash: string) => {
     const [owner, repo] = parseGithubUrl(githubUrl);
     const diffUrl = `https://github.com/${owner}/${repo}/commit/${commitHash}.diff`;
@@ -99,7 +96,6 @@ const summariseCommit = async (githubUrl: string, commitHash: string) => {
     }
 };
 
-// DB: Get project details from database
 const getProjectDetails = async (projectId: string) => {
     const project = await db.project.findFirst({
         where: { id: projectId },
@@ -110,7 +106,6 @@ const getProjectDetails = async (projectId: string) => {
     return { project, githubUrl: project.githubUrl };
 };
 
-// DB: Filter out commits already in the database
 const filterUnprocessedCommits = async (
     projectId: string,
     commitHashes: CommitInfo[]

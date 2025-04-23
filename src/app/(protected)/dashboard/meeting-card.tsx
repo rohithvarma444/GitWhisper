@@ -20,7 +20,7 @@ function MeetingCard() {
   const [audioUploaded, setAudioUploaded] = useState(false);
   const refetch = useRefetch();
   const uploadMeeting = api.project.uploadMeeting.useMutation();
-  const processMeeting = api.project.processMeetingTranscription.useMutation(); // Use the new tRPC mutation
+  const processMeeting = api.project.processMeetingTranscription.useMutation(); 
   const { projectId } = useProjects();
   const router = useRouter();
 
@@ -44,9 +44,6 @@ function MeetingCard() {
         if (!uploadUrl) {
           throw new Error('Failed to upload file');
         }
-        console.log("Upload URL:", uploadUrl);
-        console.log('---------------------- log -----------------------');
-        console.log('Sending audio URL to AssemblyAI:', uploadUrl);
         uploadMeeting.mutate({
             projectId: projectId,
             meetingUrl: uploadUrl,
@@ -55,11 +52,8 @@ function MeetingCard() {
         {
           onSuccess: async () => {
             setAudioUploaded(true);
-            console.log(uploadMeeting);
             if (uploadMeeting?.data?.id) {
-              console.log("yo reached here");
               try {
-                console.log('reached here');
                 await processMeeting.mutateAsync({
                   meetingId: uploadMeeting.data.id,
                   projectId: projectId,

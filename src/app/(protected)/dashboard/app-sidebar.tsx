@@ -20,7 +20,6 @@ import { Button } from "@/components/ui/button";
 import useProjects from "@/hooks/use-projects";
 import useRefetch from "@/hooks/use-refetch";
 
-// Create a context to share the sidebar state
 export const SidebarContext = createContext({ collapsed: false });
 
 export function useSidebar() {
@@ -40,27 +39,23 @@ export function AppSideBar() {
   const refetch = useRefetch();
   const { projects, projectId, setProjectId } = useProjects();
 
-  // Auto-collapse on screen resize
   useEffect(() => {
     const handleResize = () => {
       setCollapsed(window.innerWidth <= 768);
     };
 
-    // Initial check
     handleResize();
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Apply sidebar width to document for the main content margin
   useEffect(() => {
     document.documentElement.style.setProperty(
       '--sidebar-width', 
       collapsed ? '4rem' : '16rem'
     );
     
-    // Add a class to the body to handle the layout
     document.body.classList.add('has-sidebar');
     document.body.style.paddingLeft = 'var(--sidebar-width)';
     
@@ -155,7 +150,6 @@ export function AppSideBar() {
         </div>
       </aside>
       
-      {/* Add some global styles to your CSS or in a style tag in your layout */}
       <style jsx global>{`
         :root {
           --sidebar-width: ${collapsed ? '4rem' : '16rem'};

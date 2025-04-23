@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button"; 
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
-import { motion } from "framer-motion"; // Removed AnimatePresence as it wasn't used directly here
+import { motion } from "framer-motion"; 
 import {
   CheckCircle,
   Code,
@@ -16,9 +16,9 @@ import {
   HelpCircle,
   Github,
   Twitter,
-  Dribbble, // Example social icon
-  FileCode, // Example icon for demo
-  Terminal // Example icon for demo
+  Dribbble, 
+  FileCode, 
+  Terminal 
 } from "lucide-react";
 
 import git from "../../public/gitbg.png";
@@ -36,23 +36,22 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Define reusable color classes for consistency (optional, but helpful)
   const colors = {
     primary: 'indigo',
     secondary: 'purple',
-    tertiary: 'teal', // Or emerald
+    tertiary: 'teal', 
     success: 'emerald',
     warning: 'yellow',
     danger: 'red'
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-300 antialiased"> {/* Base dark bg, default text */}
+    <div className="min-h-screen bg-gray-900 text-gray-300 antialiased"> {}
       {/* Navbar */}
       <header
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-gray-850/90 backdrop-blur-md shadow-lg py-3 border-b border-gray-700/50" // Slightly darker, shadow, border
+            ? "bg-gray-850/90 backdrop-blur-md shadow-lg py-3 border-b border-gray-700/50" 
             : "bg-transparent py-6"
         }`}
       >
@@ -270,7 +269,6 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              // Assigning specific colors to each feature
               { icon: <Search className={`w-9 h-9 text-${colors.primary}-400`} />, title: "AI-Powered Navigation", description: "Understand complex repo structure instantly with AI mapping relationships.", color: colors.primary },
               { icon: <GitBranch className={`w-9 h-9 text-${colors.secondary}-400`} />, title: "Commit Summaries", description: "Get intelligent summaries of commits and PRs highlighting key changes.", color: colors.secondary },
               { icon: <Upload className={`w-9 h-9 text-${colors.tertiary}-400`} />, title: "Meeting Intelligence", description: "Upload recordings to automatically extract and prioritize discussed issues.", color: colors.tertiary },
@@ -282,10 +280,8 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                // Added colored left border, different icon background based on feature color
                 className={`bg-gray-800 p-7 rounded-xl shadow-lg border border-gray-700/80 border-l-4 border-${feature.color}-500 hover:shadow-${feature.color}-900/30 hover:border-${feature.color}-400 transition-all duration-300 ease-in-out group`}
               >
-                {/* Icon background matches feature color but darker */}
                 <div className={`p-4 bg-${feature.color}-900/50 rounded-lg inline-block mb-5 border border-${feature.color}-800/60 transition-colors duration-300 group-hover:bg-${feature.color}-900/80`}>
                   {feature.icon}
                 </div>

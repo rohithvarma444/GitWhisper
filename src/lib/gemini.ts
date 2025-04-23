@@ -1,6 +1,16 @@
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Document } from '@langchain/core/documents';
-const gemini = new GoogleGenerativeAI("AIzaSyCqGgouPD9VT13bD95V9HYkeTzBv-JG8kE");
+import * as dotenv from 'dotenv';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+dotenv.config({ path: resolve(__dirname, '../../.env') });
+
+
+// Initialize the GoogleGenerativeAI instance with the API key
+const gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 

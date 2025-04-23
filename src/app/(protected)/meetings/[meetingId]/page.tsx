@@ -49,7 +49,6 @@ function IssuePage() {
     refetch();
   }, [meetingId, refetch]);
 
-  // Filter issues based on search
   const filteredIssues = issues?.filter((issue) => {
     const matchesSearch = searchTerm === "" || 
       issue.headline?.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -58,7 +57,6 @@ function IssuePage() {
     return matchesSearch;
   });
 
-  // Animation variants for cards
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i) => ({

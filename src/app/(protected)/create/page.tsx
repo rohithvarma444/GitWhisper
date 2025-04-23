@@ -6,6 +6,7 @@ import { projectRouter } from '@/server/api/routers/project';
 import { api } from '@/trpc/react';
 import { toast } from 'sonner';
 import useRefetch from '@/hooks/use-refetch';
+import { Loader2 } from "lucide-react";
 
 type FormInput = {
   repoUrl: string;
@@ -19,21 +20,26 @@ const CreatePage = () => {
 
   const createProject = api.project.createProject.useMutation();
 
+  const [isLoading, setIsLoading] = React.useState(false);
+
   const onSubmit = (data: FormInput) => {
+    setIsLoading(true);
     createProject.mutate({
         githubUrl: data.repoUrl,
         name: data.projectName,
         githubToken: data.githubToken ? data.githubToken : "",
     }, {
         onSuccess: () => {
-            toast.success('Project created successfully')
-            refetch()
+            toast.success('Project created successfully');
+            refetch();
+            setIsLoading(false);
         },
 
         onError: () => {
-            toast.error('Error in creating project')
+            toast.error('Indexing failed. We are on a free tier, please try again later. Meanwhile, explore our indexed repos.');
+            setIsLoading(false);
         }
-    })
+    });
     reset()
   };
 
@@ -48,6 +54,13 @@ const CreatePage = () => {
         <p className="mb-4 text-gray-600">
           Enter the URL for your repository to link it to GitWhisper.
         </p>
+
+        {isLoading && (
+          <div className="mb-4 flex flex-col items-center text-blue-500 text-sm">
+            <Loader2 className="animate-spin text-blue-500 w-10 h-10 mb-4" />
+            Indexing your repository... This may take a moment. We’re running on a free tier. If it fails, please try again later. You can still explore already indexed repositories!
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

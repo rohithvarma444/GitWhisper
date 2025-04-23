@@ -33,6 +33,7 @@ const CommitLog = () => {
       </div>
     );
   }
+  // if(commits.length) console.log(commits[0]); // Keep or remove this console log as needed
 
   return (
     <div className="rounded-lg bg-card p-4 shadow-sm md:p-6">
@@ -49,11 +50,11 @@ const CommitLog = () => {
 const CommitCard = ({ commit }) => {
   const [expanded, setExpanded] = React.useState(false);
   const hasSummary = commit.summary && commit.summary.trim() !== "";
-  
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', { 
-      month: 'short', 
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
       day: 'numeric',
       hour: 'numeric',
       minute: '2-digit'
@@ -64,15 +65,21 @@ const CommitCard = ({ commit }) => {
     <div className="overflow-hidden rounded-md border border-border bg-background transition-all hover:bg-muted/30">
       <div className="flex flex-col md:flex-row md:items-start">
         <div className="flex items-center p-3 md:w-16 md:justify-center">
-          <div className="h-8 w-8 overflow-hidden rounded-full border border-border">
-            <img
-              src={commit.commitAuthorAvatarUrl || "/api/placeholder/32/32"}
-              alt={`${commit.commitAuthor}'s avatar`}
-              className="h-full w-full object-cover"
-            />
+          <div className="h-8 w-8 overflow-hidden rounded-full border border-border flex items-center justify-center bg-muted"> {/* Added flex and bg-muted for initial */}
+            {commit.commitAuthorAvatarUrl ? (
+              <img
+                src={commit.commitAuthorAvatarUrl}
+                alt={`${commit.commitAuthor}'s avatar`}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span className="text-sm font-bold text-muted-foreground"> {/* Adjusted text size and color */}
+                {commit.commitAuthor?.charAt(0).toUpperCase()}
+              </span>
+            )}
           </div>
         </div>
-        
+
         <div className="flex-1 p-3 pt-0 md:pt-3">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <p className="font-medium text-foreground">{commit.commitAuthor}</p>
@@ -81,9 +88,9 @@ const CommitCard = ({ commit }) => {
               {formatDate(commit.commitDate)}
             </div>
           </div>
-          
+
           <p className="mt-1 text-sm text-foreground">{commit.commitMessage}</p>
-          
+
           {hasSummary && (
             <div className="mt-2">
               <button
@@ -93,7 +100,7 @@ const CommitCard = ({ commit }) => {
                 <MessageSquare size={12} className="mr-1" />
                 {expanded ? "Hide details" : "Show details"}
               </button>
-              
+
               {expanded && (
                 <ul className="mt-2 space-y-1 rounded-md bg-muted/50 p-3 text-sm">
                   {commit.summary
@@ -115,4 +122,4 @@ const CommitCard = ({ commit }) => {
   );
 };
 
-export default CommitLog;
+export default CommitLog

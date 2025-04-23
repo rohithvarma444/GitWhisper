@@ -5,8 +5,9 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateEmbedding } from "@/lib/gemini";
 import { db } from "@/server/db";
 
+
 const google = createGoogleGenerativeAI({
-  apiKey: "AIzaSyCqGgouPD9VT13bD95V9HYkeTzBv-JG8kE",
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
 export async function askQuestion(question: string, projectId: string) {

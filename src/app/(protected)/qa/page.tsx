@@ -50,7 +50,6 @@ function QaPage() {
   
   const question = questions ? questions[questionIndex] : undefined
 
-  // Automatically scroll to the bottom when dialog opens
   useEffect(() => {
     if (answerRef.current && openDialog) {
       answerRef.current.scrollTop = 0;
@@ -81,11 +80,8 @@ function QaPage() {
 
   const handleFollowUpSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Here you would implement the follow-up question logic
-    // Similar to how it's handled in the AskQuestion component
     setLoading(true);
     
-    // Placeholder for demonstration
     toast.info("Follow-up questions feature coming soon!");
     setLoading(false);
   };

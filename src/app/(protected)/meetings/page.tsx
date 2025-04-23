@@ -2,8 +2,8 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button'; // Ensure this import is correct
-import { Trash2 } from 'lucide-react'; // Ensure this import is correct
+import { Button } from '@/components/ui/button'; 
+import { Trash2 } from 'lucide-react'; 
 import MeetingCard from '../dashboard/meeting-card';
 import useProjects from '@/hooks/use-projects';
 import { api } from '@/trpc/react';

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { format } from 'date-fns';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 function BillingPage() {
   const { user } = useUser();
@@ -22,7 +23,7 @@ function BillingPage() {
   const { data} = api.project.getMyCredits.useQuery({ userId });
   const credits = data?.credits || 0;
   const [creditsToBuy, setCreditsToBuy] = React.useState(100);
-  const netAmount = creditsToBuy*2; // For example, 100 credits = $2.00
+  const netAmount = creditsToBuy*2; 
 
   const handleSliderChange = (value: number[]) => {
     setCreditsToBuy(value[0]);
@@ -35,13 +36,11 @@ function BillingPage() {
   const createOrder = async () => {
     try {
       const res = await axios.post('/api/createOrder', {
-        amount: Number(netAmount) * 100, // convert to smallest currency unit
+        amount: Number(netAmount) * 100, 
       });
 
       const { id: order_id } = res.data;
 
-      console.log('-------------------Order ID:', order_id);
-      console.log('-----------------', process.env.RAZORPAY_KEY_ID);
 
       const paymentData = {
         key: process.env.RAZORPAY_KEY_ID,
@@ -60,7 +59,6 @@ function BillingPage() {
 
             if (verifyRes.data.isOk) {
               alert('Payment successful');
-              // Optionally refresh credits/transactions
             } else {
               alert('Payment verification failed');
             }
@@ -112,10 +110,16 @@ function BillingPage() {
         />
 
         <Button
-          onClick={createOrder}
-          className="w-full bg-primary text-white py-2 px-4 rounded"
+          onClick={() => {
+            toast("We are running on the free tier, so we are currently not accepting payments.", {
+              description: "We'll notify you when payment options become available. Stay tuned!",
+              duration: 5000,
+            });
+          }}
+          className="w-full bg-primary text-white py-3 px-6 rounded-lg text-base font-medium hover:bg-primary/90 transition-colors duration-200"
         >
-          Buy {creditsToBuy} credits for ${netAmount}
+          <span role="img" aria-label="credit-card" className="mr-2">💳</span>
+          Buy {creditsToBuy} credits for ₹{netAmount}
         </Button>
       </div>
 
