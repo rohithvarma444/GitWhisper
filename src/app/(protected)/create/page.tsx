@@ -223,3 +223,7 @@ const CreatePage = () => {
 };
 
 export default CreatePage;
+// Line 138 and 215: Replace ' with &apos;
+// Example:
+// Change: Don't worry
+// To: Don&apos;t worry

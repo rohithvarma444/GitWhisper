@@ -32,9 +32,10 @@ function MeetingPage() {
     }
   }, [projectId, router]);
 
+  // Line 37: Add refetch to the dependency array
   useEffect(() => {
     refetch();
-  }, []);
+  }, [refetch]); // Add refetch here
 
   const deleteMeeting = api.project.deleteMeeting.useMutation({
     onSuccess: () => {

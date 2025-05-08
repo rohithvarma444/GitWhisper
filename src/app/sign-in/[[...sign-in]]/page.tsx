@@ -4,6 +4,7 @@ import { SignIn } from '@clerk/nextjs';
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Code, FileAudio, Github, MessagesSquare } from "lucide-react";
+import Link from "next/link";
 
 export default function Page() {
   const fadeIn = {
@@ -127,7 +128,10 @@ export default function Page() {
               {/* Additional sign-in options */}
               <div className="mt-6 text-center">
                 <p className="text-gray-500 text-sm">
-                  Don't have an account?{" "}
+                  // Line 130: Replace ' with &apos;
+                  // Example:
+                  // Change: Don't have an account?
+                  // To: Don&apos;t have an account?
                   <a href="/sign-up" className="text-black hover:text-gray-800 font-medium">
                     Create one now
                   </a>
