@@ -21,51 +21,32 @@ const model = gemini.getGenerativeModel({
 export const aiSummariseCommit = async (diff: string) => {
   try {
     const prompt = `
-You are an expert software engineer with extensive experience in analyzing Git diffs. Your task is to review the given Git diff and generate a clear, professional, and well-structured summary.
+You are a seasoned software engineer specializing in Git diff analysis. Your mission is to dissect the provided Git diff and produce a concise, professional summary highlighting the key changes. Present your summary as bullet points, with each point separated by a newline character (\`\\n\`). Focus on the purpose, impact, and clarity of the changes.
 
----
+Avoid including raw diff content or filenames unless they are crucial for context. Steer clear of vague phrases like "updated code" or "made changes." Instead, concentrate on providing insightful descriptions of what changed, why it changed, and the resulting effect.
 
-### 🔍 Input Format
-- The Git diff may span multiple files and show lines added (+), removed (-), or unchanged (context).
-- Metadata like \`diff --git a/file.js b/file.js\` indicates file-level changes.
-
----
-
-### ✨ Your Output Requirements
-- **Write the summary as bullet points**, starting each point with \`*\`.
-- Separate each bullet point with a **newline (\\n)**.
-- Focus on **clarity, purpose, and impact** of the changes.
-- **DO NOT** include the raw diff content or filenames unless they provide useful context.
-- Write in **past tense**.
-
----
-
-### ✅ Good Summary Examples:
-* Fixed a login validation bug by adding input sanitization [\`auth/login.ts\`]
-* Added retry mechanism for failed API requests [\`utils/network.ts\`]
-* Refactored caching logic to improve memory usage
-* Removed deprecated helper function used across multiple modules
-
----
-
-### ❌ Avoid:
-- Vague phrases like “updated code”, “made changes”, “did cleanup”
-- Redundant or verbose explanations
-
----
-
-### 🧠 Instructions
-1. **Understand the purpose**: Identify if the commit is a bug fix, feature, refactor, or optimization.
-2. **Summarize impactfully**: What changed? Why? What’s the result?
-3. **Be concise and professional**
-
----
-
-Now analyze the following Git diff and summarize the key changes as bullet points:
+Here's the Git diff for your analysis:
 
 \`\`\`diff
 ${diff}
 \`\`\`
+
+Your summary should adhere to the following guidelines:
+
+*   Each bullet point should start with an asterisk (\`*\`).
+*   Each bullet point should be separated by a newline character (\`\\n\`).
+*   Use past tense to describe the changes.
+*   Focus on the "what, why, and impact" of each change.
+*   Be concise and professional in your language.
+
+For example:
+
+* Fixed a critical security vulnerability in the authentication module [\`auth.js\`]\n
+* Implemented a new rate-limiting mechanism to prevent abuse\n
+* Refactored the data processing pipeline to improve performance and scalability\n
+* Enhanced error logging to facilitate debugging and troubleshooting
+
+Now, please provide your well-structured and insightful summary of the provided Git diff. Consider this an exercise in demonstrating your expertise in understanding and communicating software changes effectively. I expect a clear, professional response suitable for technical stakeholders.
 `;
 
     console.log("🧠 Generating commit summary...");
@@ -89,12 +70,10 @@ ${diff}
 export const summariseCode = async (doc: Document): Promise<string> => {
   console.log("🔹 Generating summarization for source code...");
 
-  const codeSnippet = doc.pageContent.slice(0, 10000); // ✅ Limit code snippet size
+  const codeSnippet = doc.pageContent.slice(0, 10000); 
 
   const prompt = `
-You are an experienced software engineer tasked with explaining source code functionality in a concise, professional manner. The goal is to help a developer or stakeholder understand what a particular file does in the context of a GitHub repository.
-
----
+You're an experienced software engineer, explaining code to a colleague. Your goal is to quickly and clearly explain the purpose of a specific file in a GitHub repository. Here's the file path and code snippet:
 
 ### 📄 File:
 ${doc.metadata.source}
@@ -104,21 +83,19 @@ ${doc.metadata.source}
 ${codeSnippet}
 -------------------
 
-### 📘 Guidelines:
-- Explain the **purpose**, **logic**, and **implementation** of this code.
-- Be clear and precise. Avoid unnecessary technical jargon.
-- Keep the response **brief and well-structured** (max 100 words).
-- Do not include greetings or narrative intros.
-- Focus on **what this code does** and **why it matters**.
+Based on the code above, provide a concise explanation (under 100 words) of the file's function. Focus on these aspects:
 
----
+*   **Purpose:** What problem does this code solve? What's its high-level goal?
+*   **Logic:** How does the code achieve its purpose? Briefly describe the main steps or algorithms involved.
+*   **Implementation:** What are the key components or techniques used (e.g., data structures, libraries, specific functions)?
+*   **Importance:** Why is this file important to the overall project? What would break if it were removed or malfunctioning?
+
+Avoid unnecessary technical jargon and write in a friendly, encouraging tone. Think of it as helping a teammate understand a critical piece of the system. Assume they have general programming knowledge but might be unfamiliar with this specific code. Let them know they are doing a great job by focusing and learning about new code.
+
+Here's an example of the kind of response I'm looking for:
 
 ### ✅ Example Output:
-This file implements a REST API handler for user authentication, including login, signup, and token verification. It validates input, checks credentials against the database, and responds with access tokens. Error handling ensures invalid requests are gracefully rejected.
-
----
-
-Generate a similar summary for the provided code:
+This file implements a REST API handler for user authentication, including login, signup, and token verification. It validates input, checks credentials against the database, and responds with access tokens. Error handling ensures invalid requests are gracefully rejected. This is crucial for securing the application and managing user access. Keep up the great work learning new things!
 `;
 
   try {

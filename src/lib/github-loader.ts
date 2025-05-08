@@ -6,8 +6,15 @@ import { summariseCode, generateEmbedding } from "./gemini";
 
 export const loadGithubRepo = async (repoUrl: string, githubToken?: string) => {
   try {
+    // Use the provided token or fall back to the environment variable
+    const token = githubToken || process.env.GITHUB_TOKEN;
+    
+    if (!token) {
+      throw new Error("GitHub token is required for API access");
+    }
+    
     const loader = new GithubRepoLoader(repoUrl, {
-      accessToken: githubToken,
+      accessToken: token,
       branch: "main",
       ignoreFiles: ["node_modules", "dist", "build", "coverage", "test", "tests","package-lock.json","package.json",".bundle",".gitignore",".env",".env.local",".env.development",".env.test",".env.production",".env.local",".env.development.local",".env.test.local",".env.production.local"],
       recursive: true,
@@ -18,6 +25,12 @@ export const loadGithubRepo = async (repoUrl: string, githubToken?: string) => {
     return await loader.load();
   } catch (error) {
     console.error("Error loading GitHub repository:", error);
+    
+    // Provide more specific error message for rate limiting
+    if (error.toString().includes("rate limit")) {
+      throw new Error("GitHub API rate limit exceeded. Please check your token or try again later.");
+    }
+    
     throw new Error("Failed to load GitHub repository.");
   }
 };

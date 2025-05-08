@@ -17,6 +17,8 @@ import { api } from "@/trpc/react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
+import { SaasDialog, SaasDialogFooter } from "@/components/ui/saas-dialog";
+
 type FileReference = {
   fileName: string;
   sourceCode: string;
@@ -130,218 +132,344 @@ const AskQuestion: React.FC = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Add this function after handleSaveAnswer
+  const [followUpQuestion, setFollowUpQuestion] = useState<string>("");
+  
+  // Add this function to handle follow-up question submissions
+  const handleFollowUpSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!followUpQuestion.trim() || loading) return;
+    
+    setLoading(true);
+    
+    try {
+      // For now, just show a toast until the feature is implemented
+      toast.info("Follow-up questions feature coming soon!");
+      // Clear the input after submission
+      setFollowUpQuestion("");
+    } catch (error) {
+      console.error("Error submitting follow-up question:", error);
+      toast.error("Failed to process your follow-up question.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
-      <Dialog open={open} onOpenChange={handleDialogClose}>
-        <DialogContent 
-          className={`max-w-5xl ${isCompact ? 'h-[60vh]' : 'h-[85vh]'} p-0 rounded-xl overflow-hidden flex flex-col`}
-          style={{ maxHeight: '90vh' }}
-        >
-          <DialogHeader className="px-6 py-3 border-b bg-gray-50 sticky top-0 z-10">
-            <div className="flex items-center justify-between">
-              <DialogTitle className="text-xl font-semibold text-gray-800">GitWhisper</DialogTitle>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsCompact(!isCompact)}
-                  className="p-1 h-8 w-8"
-                >
-                  {isCompact ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setOpen(false)}
-                  className="p-1 h-8 w-8"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+      <SaasDialog 
+        open={open} 
+        onOpenChange={handleDialogClose}
+        title="GitWhisper"
+        description={question ? `Question: ${question}` : undefined}
+        isCompact={isCompact}
+        onToggleCompact={() => setIsCompact(!isCompact)}
+      >
+        <Tabs defaultValue="answer" value={activeTab} onValueChange={setActiveTab} className="w-full flex-1 overflow-hidden flex flex-col">
+          <div className="border-b px-6 py-2 bg-muted/30">
+            <TabsList className="grid w-full max-w-md grid-cols-2">
+              <TabsTrigger value="answer">Answer</TabsTrigger>
+              <TabsTrigger value="references">References ({fileReferences.length})</TabsTrigger>
+            </TabsList>
+          </div>
+          
+          <TabsContent value="answer" className="flex-1 overflow-hidden flex flex-col">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center p-8 flex-1">
+                <Loader2 className="h-8 w-8 text-primary animate-spin mb-4" />
+                <p className="text-muted-foreground">Processing your question...</p>
               </div>
-            </div>
-            <div className="mt-1 text-sm text-gray-500 truncate">
-              <span className="font-medium">Question:</span> {question}
-            </div>
-          </DialogHeader>
-
-          <Tabs defaultValue="answer" value={activeTab} onValueChange={setActiveTab} className="w-full flex-1 overflow-hidden flex flex-col">
-            <TabsContent value="answer" className="flex-1 overflow-hidden flex flex-col">
-              {loading ? (
-                <div className="flex flex-col items-center justify-center p-8 flex-1">
-                  <Loader2 className="h-8 w-8 text-blue-500 animate-spin mb-4" />
-                  <p className="text-gray-600">Processing your question...</p>
-                </div>
-              ) : (
-                <div className="flex flex-col h-full overflow-y-auto" ref={answerRef}>
-                  <div className="px-6 py-4">
-                    <div className="prose max-w-none mb-6">
-                      <div className="p-4 bg-white rounded-lg border border-gray-100 shadow-sm">
-                        <div className="text-gray-800 leading-relaxed">
-                          <ReactMarkdown>{answer}</ReactMarkdown>
-                        </div>
+            ) : (
+              <div className="flex flex-col h-full overflow-y-auto" ref={answerRef}>
+                <div className="px-6 py-4">
+                  <div className="prose max-w-none mb-6">
+                    <div className="p-4 bg-card rounded-lg border border-border shadow-sm">
+                      <div className="text-card-foreground leading-relaxed">
+                        <ReactMarkdown>{answer}</ReactMarkdown>
                       </div>
-                      <div className="flex space-x-2 mt-4">
-                        <Button variant="outline" size="sm" onClick={() => copyToClipboard(answer)}>
-                          {copied ? (
-                            <>
-                              <Check className="h-4 w-4 mr-2 text-green-500" />
-                              Copied!
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="h-4 w-4 mr-2" />
-                              Copy
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={handleSaveAnswer}
-                          disabled={saveAnswerMutation.isLoading || saved}
-                          className="bg-primary hover:bg-primary/90 text-white"
-                        >
-                          {saveAnswerMutation.isLoading ? (
-                            <>
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              Saving...
-                            </>
-                          ) : (
-                            <>
-                              <Save className="h-4 w-4 mr-2" />
-                              {saved ? "Already Saved" : "Save Answer"}
-                            </>
-                          )}
-                        </Button>
-                      </div>
+                    </div>
+                    <div className="flex space-x-2 mt-4">
+                      <Button variant="outline" size="sm" onClick={() => copyToClipboard(answer)}>
+                        {copied ? (
+                          <>
+                            <Check className="h-4 w-4 mr-2 text-green-500" />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-4 w-4 mr-2" />
+                            Copy
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={handleSaveAnswer}
+                        disabled={saveAnswerMutation.isLoading || saved}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                      >
+                        {saveAnswerMutation.isLoading ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="h-4 w-4 mr-2" />
+                            {saved ? "Already Saved" : "Save Answer"}
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </div>
+                </div>
 
-                  {fileReferences.length > 0 && (
-                    <div className="px-6 pb-6">
-                      <div className="border-t border-gray-200 pt-4 mt-2">
-                        <h3 className="text-sm font-semibold mb-3 text-gray-800">Referenced Files</h3>
-                        <div className="mb-4 overflow-x-auto pb-2">
-                          <div className="flex space-x-2">
-                            {fileReferences.map((ref, idx) => (
-                              <button
-                                key={idx}
-                                onClick={() => setSelectedFile(ref.fileName)}
-                                className={`whitespace-nowrap flex-shrink-0 px-3 py-1.5 rounded-md text-xs ${
-                                  selectedFile === ref.fileName
-                                    ? "bg-primary text-white font-medium"
-                                    : "bg-gray-100 hover:bg-gray-200 text-gray-800"
-                                }`}
-                              >
-                                {ref.fileName.split("/").pop()}
-                              </button>
-                            ))}
-                          </div>
+                {fileReferences.length > 0 && (
+                  <div className="px-6 pb-6">
+                    <div className="border-t border-border pt-4 mt-2">
+                      <h3 className="text-sm font-semibold mb-3">Referenced Files</h3>
+                      <div className="mb-4 overflow-x-auto pb-2">
+                        <div className="flex space-x-2">
+                          {fileReferences.map((ref, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => setSelectedFile(ref.fileName)}
+                              className={`whitespace-nowrap flex-shrink-0 px-3 py-1.5 rounded-md text-xs ${
+                                selectedFile === ref.fileName
+                                  ? "bg-primary text-primary-foreground font-medium"
+                                  : "bg-muted hover:bg-muted/80 text-muted-foreground"
+                              }`}
+                            >
+                              {ref.fileName.split("/").pop()}
+                            </button>
+                          ))}
                         </div>
+                      </div>
 
-                        {selectedFile &&
-                          fileReferences
-                            .filter((ref) => ref.fileName === selectedFile)
-                            .map((ref, idx) => (
-                              <div key={idx} className="rounded-lg border border-gray-200 overflow-hidden">
-                                <div className="p-3 bg-gray-50 border-b border-gray-200">
-                                  <h5 className="text-xs font-semibold mb-1 text-gray-800 uppercase">Summary</h5>
-                                  <div className="p-2 bg-white rounded-md border border-gray-100">
-                                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{ref.summary}</p>
-                                  </div>
-                                </div>
-
-                                <div>
-                                  <div className="px-3 py-2 bg-gray-800 text-white flex justify-between items-center">
-                                    <h5 className="text-xs font-semibold uppercase">{ref.fileName.split('/').pop()}</h5>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => copyToClipboard(ref.sourceCode)}
-                                      className="h-6 w-6 p-0 text-gray-300 hover:text-white hover:bg-gray-700"
-                                    >
-                                      <Copy className="h-3 w-3" />
-                                    </Button>
-                                  </div>
-                                  <div className="rounded-b-lg overflow-hidden">
-                                    <SyntaxHighlighter
-                                      language="tsx"
-                                      style={oneDark}
-                                      customStyle={{
-                                        padding: "1rem",
-                                        backgroundColor: "#1e1e1e",
-                                        fontSize: "0.875rem",
-                                        lineHeight: "1.5",
-                                        margin: 0
-                                      }}
-                                      showLineNumbers={true}
-                                      wrapLines={true}
-                                      lineProps={lineNumber => ({
-                                        style: { display: 'block', width: '100%' }
-                                      })}
-                                    >
-                                      {ref.sourceCode}
-                                    </SyntaxHighlighter>
-                                  </div>
+                      {selectedFile &&
+                        fileReferences
+                          .filter((ref) => ref.fileName === selectedFile)
+                          .map((ref, idx) => (
+                            <div key={idx} className="rounded-lg border border-border overflow-hidden">
+                              <div className="p-3 bg-muted border-b border-border">
+                                <h5 className="text-xs font-semibold mb-1 uppercase">Summary</h5>
+                                <div className="p-2 bg-card rounded-md border border-border">
+                                  <p className="text-sm text-card-foreground whitespace-pre-wrap">{ref.summary}</p>
                                 </div>
                               </div>
-                            ))}
+
+                              <div>
+                                <div className="px-3 py-2 bg-gray-800 text-white flex justify-between items-center">
+                                  <h5 className="text-xs font-semibold uppercase">{ref.fileName.split('/').pop()}</h5>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => copyToClipboard(ref.sourceCode)}
+                                    className="h-6 w-6 p-0 text-gray-300 hover:text-white hover:bg-gray-700"
+                                  >
+                                    <Copy className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                                <div className="rounded-b-lg overflow-hidden">
+                                  <SyntaxHighlighter
+                                    language="tsx"
+                                    style={oneDark}
+                                    customStyle={{
+                                      padding: "1rem",
+                                      backgroundColor: "#1e1e1e",
+                                      fontSize: "0.875rem",
+                                      lineHeight: "1.5",
+                                      margin: 0
+                                    }}
+                                    showLineNumbers={true}
+                                    wrapLines={true}
+                                    lineProps={lineNumber => ({
+                                      style: { display: 'block', width: '100%' }
+                                    })}
+                                  >
+                                    {ref.sourceCode}
+                                  </SyntaxHighlighter>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="references" className="flex-1 overflow-auto p-6">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center p-8 flex-1">
+                <Loader2 className="h-8 w-8 text-primary animate-spin mb-4" />
+                <p className="text-muted-foreground">Processing your question...</p>
+              </div>
+            ) : (
+              <div className="flex flex-col h-full overflow-y-auto" ref={answerRef}>
+                <div className="px-6 py-4">
+                  <div className="prose max-w-none mb-6">
+                    <div className="p-4 bg-card rounded-lg border border-border shadow-sm">
+                      <div className="text-card-foreground leading-relaxed">
+                        <ReactMarkdown>{answer}</ReactMarkdown>
                       </div>
                     </div>
-                  )}
+                    <div className="flex space-x-2 mt-4">
+                      <Button variant="outline" size="sm" onClick={() => copyToClipboard(answer)}>
+                        {copied ? (
+                          <>
+                            <Check className="h-4 w-4 mr-2 text-green-500" />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-4 w-4 mr-2" />
+                            Copy
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={handleSaveAnswer}
+                        disabled={saveAnswerMutation.isLoading || saved}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                      >
+                        {saveAnswerMutation.isLoading ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="h-4 w-4 mr-2" />
+                            {saved ? "Already Saved" : "Save Answer"}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </TabsContent>
-          </Tabs>
 
-          <DialogFooter className="px-6 py-3 border-t bg-gray-50 sticky bottom-0 z-10">
-            <form onSubmit={handleSubmit} className="flex w-full gap-2">
-              <Input
-                type="text"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Ask a follow-up question..."
-                className="flex-1"
-              />
-              <Button type="submit" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Asking
-                  </>
-                ) : (
-                  "Ask"
+                {fileReferences.length > 0 && (
+                  <div className="px-6 pb-6">
+                    <div className="border-t border-border pt-4 mt-2">
+                      <h3 className="text-sm font-semibold mb-3">Referenced Files</h3>
+                      <div className="mb-4 overflow-x-auto pb-2">
+                        <div className="flex space-x-2">
+                          {fileReferences.map((ref, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => setSelectedFile(ref.fileName)}
+                              className={`whitespace-nowrap flex-shrink-0 px-3 py-1.5 rounded-md text-xs ${
+                                selectedFile === ref.fileName
+                                  ? "bg-primary text-primary-foreground font-medium"
+                                  : "bg-muted hover:bg-muted/80 text-muted-foreground"
+                              }`}
+                            >
+                              {ref.fileName.split("/").pop()}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {selectedFile &&
+                        fileReferences
+                          .filter((ref) => ref.fileName === selectedFile)
+                          .map((ref, idx) => (
+                            <div key={idx} className="rounded-lg border border-border overflow-hidden">
+                              <div className="p-3 bg-muted border-b border-border">
+                                <h5 className="text-xs font-semibold mb-1 uppercase">Summary</h5>
+                                <div className="p-2 bg-card rounded-md border border-border">
+                                  <p className="text-sm text-card-foreground whitespace-pre-wrap">{ref.summary}</p>
+                                </div>
+                              </div>
+
+                              <div>
+                                <div className="px-3 py-2 bg-gray-800 text-white flex justify-between items-center">
+                                  <h5 className="text-xs font-semibold uppercase">{ref.fileName.split('/').pop()}</h5>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => copyToClipboard(ref.sourceCode)}
+                                    className="h-6 w-6 p-0 text-gray-300 hover:text-white hover:bg-gray-700"
+                                  >
+                                    <Copy className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                                <div className="rounded-b-lg overflow-hidden">
+                                  <SyntaxHighlighter
+                                    language="tsx"
+                                    style={oneDark}
+                                    customStyle={{
+                                      padding: "1rem",
+                                      backgroundColor: "#1e1e1e",
+                                      fontSize: "0.875rem",
+                                      lineHeight: "1.5",
+                                      margin: 0
+                                    }}
+                                    showLineNumbers={true}
+                                    wrapLines={true}
+                                    lineProps={lineNumber => ({
+                                      style: { display: 'block', width: '100%' }
+                                    })}
+                                  >
+                                    {ref.sourceCode}
+                                  </SyntaxHighlighter>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                    </div>
+                  </div>
                 )}
-              </Button>
-            </form>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+        
+        <SaasDialogFooter>
+          <form onSubmit={handleFollowUpSubmit} className="flex w-full gap-2">
+            <Input
+              value={followUpQuestion}
+              onChange={(e) => setFollowUpQuestion(e.target.value)}
+              placeholder="Ask a follow-up question..."
+              className="flex-1"
+              disabled={loading}
+            />
+            <Button type="submit" disabled={!followUpQuestion.trim() || loading}>
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send"}
+            </Button>
+          </form>
+        </SaasDialogFooter>
+      </SaasDialog>
+      
       <div className="w-full h-full flex items-center justify-center">
-        <Card className="w-full max-w-2xl p-4 shadow-lg border border-gray-200 rounded-lg bg-white hover:shadow-xl transition-shadow duration-300">
+        <Card className="w-full max-w-2xl p-4 shadow-lg border border-border rounded-lg bg-card hover:shadow-xl transition-shadow duration-300">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold text-gray-800 flex items-center">
-              <span className="bg-blue-100 p-1 rounded-md text-blue-600 mr-2">
+            <CardTitle className="text-lg font-semibold flex items-center">
+              <span className="bg-primary/10 p-1 rounded-md text-primary mr-2">
                 <BookOpen className="h-4 w-4" />
               </span>
               Ask a Question
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600 mb-3 text-sm">Have any questions about your project? Ask here.</p>
+            <p className="text-muted-foreground mb-3 text-sm">Have any questions about your project? Ask here.</p>
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input
                 type="text"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="Where is login handled?"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full px-4 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
               />
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="w-full bg-primary hover:bg-primary/90 text-white"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 {loading ? (
                   <>

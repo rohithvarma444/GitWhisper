@@ -390,4 +390,25 @@ export const projectRouter = createTRPCRouter({
       console.log('Fetched issues:', issues.length);
       return issues;
     }),
+    refreshCommits: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const result = await pollCommits(input.projectId);
+          return { 
+            success: true, 
+            newCommitsCount: result.added,
+            message: result.added > 0 
+              ? `Successfully added ${result.added} new commits` 
+              : "No new commits found"
+          };
+        } catch (error) {
+          console.error("Failed to refresh commits:", error);
+          throw new Error("Failed to refresh commits: " + error);
+        }
+      }),
 });

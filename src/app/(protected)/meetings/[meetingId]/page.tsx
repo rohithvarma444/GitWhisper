@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SaasDialog, SaasDialogFooter } from "@/components/ui/saas-dialog";
 
 
 
@@ -68,6 +69,8 @@ function IssuePage() {
       }
     })
   };
+
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto">
@@ -134,103 +137,105 @@ function IssuePage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredIssues?.map((issue: any, i) => (
-            <Dialog key={issue.id}>
-              <DialogTrigger asChild>
-                <motion.div
-                  variants={cardVariants}
-                  initial="hidden"
-                  animate="visible"
-                  custom={i}
-                >
-                  <Card
-                    className="cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden"
-                    onClick={() => setSelectedIssue(issue)}
-                  >
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg font-semibold line-clamp-2">
-                        {issue.headline}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pb-2">
-                      <p className="text-sm text-muted-foreground line-clamp-3">
-                        {issue.summary}
-                      </p>
-                    </CardContent>
-                    <CardFooter className="pt-0 flex justify-between items-center">
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3 mr-1" />
-                        <span>
-                          {issue.start} → {issue.end}
-                        </span>
-                      </div>
-                      
-                      {issue.assignee && (
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={issue.assignee.imageUrl} />
-                          <AvatarFallback>{issue.assignee.initials}</AvatarFallback>
-                        </Avatar>
-                      )}
-                    </CardFooter>
-                  </Card>
-                </motion.div>
-              </DialogTrigger>
-              
-              <DialogContent className="sm:max-w-md md:max-w-lg">
-                <DialogHeader>
-                  <DialogTitle className="text-xl">{selectedIssue?.headline}</DialogTitle>
-                </DialogHeader>
-                
-                <div className="flex items-center mb-4">
-                  <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                  <div className="text-sm">
-                    <div className="text-muted-foreground">Discussion Time</div>
-                    <div>{selectedIssue?.start} → {selectedIssue?.end}</div>
+            <motion.div
+              key={issue.id}
+              variants={cardVariants}
+              initial="hidden"
+              animate="visible"
+              custom={i}
+            >
+              <Card
+                className="cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden"
+                onClick={() => {
+                  setSelectedIssue(issue);
+                  setDialogOpen(true);
+                }}
+              >
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-semibold line-clamp-2">
+                    {issue.headline}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  <p className="text-sm text-muted-foreground line-clamp-3">
+                    {issue.summary}
+                  </p>
+                </CardContent>
+                <CardFooter className="pt-0 flex justify-between items-center">
+                  <div className="flex items-center text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3 mr-1" />
+                    <span>
+                      {issue.start} → {issue.end}
+                    </span>
                   </div>
-                </div>
-                
-                <div className="border rounded-md p-4 bg-muted/10">
-                  <h3 className="text-sm font-medium mb-2">Summary</h3>
-                  <p className="whitespace-pre-wrap text-sm">{selectedIssue?.summary}</p>
-                </div>
-                
-                {selectedIssue?.assignee && (
-                  <div className="flex items-center mt-4">
-                    <Users className="h-4 w-4 mr-2 text-muted-foreground" />
-                    <div className="text-sm">
-                      <div className="text-muted-foreground">Assignee</div>
-                      <div className="flex items-center">
-                        <Avatar className="h-5 w-5 mr-1">
-                          <AvatarImage src={selectedIssue?.assignee.imageUrl} />
-                          <AvatarFallback>{selectedIssue?.assignee.initials}</AvatarFallback>
-                        </Avatar>
-                        {selectedIssue?.assignee.name}
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {selectedIssue?.tags && selectedIssue.tags.length > 0 && (
-                  <div className="flex items-center gap-2 mt-4">
-                    <Tag className="h-4 w-4 text-muted-foreground" />
-                    <div className="flex flex-wrap gap-1">
-                      {selectedIssue.tags.map((tag, i) => (
-                        <Badge key={i} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                <DialogFooter className="mt-4">
-                  <DialogClose asChild>
-                    <Button variant="outline">Close</Button>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                  
+                  {issue.assignee && (
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage src={issue.assignee.imageUrl} />
+                      <AvatarFallback>{issue.assignee.initials}</AvatarFallback>
+                    </Avatar>
+                  )}
+                </CardFooter>
+              </Card>
+            </motion.div>
           ))}
         </div>
+      )}
+      
+      {selectedIssue && (
+        <SaasDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          title={selectedIssue.headline}
+        >
+          <div className="p-6 overflow-auto flex-1">
+            <div className="flex items-center mb-4">
+              <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+              <div className="text-sm">
+                <div className="text-muted-foreground">Discussion Time</div>
+                <div>{selectedIssue.start} → {selectedIssue.end}</div>
+              </div>
+            </div>
+            
+            <div className="border rounded-md p-4 bg-muted/10">
+              <h3 className="text-sm font-medium mb-2">Summary</h3>
+              <p className="whitespace-pre-wrap text-sm">{selectedIssue.summary}</p>
+            </div>
+            
+            {selectedIssue?.assignee && (
+              <div className="flex items-center mt-4">
+                <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+                <div className="text-sm">
+                  <div className="text-muted-foreground">Assignee</div>
+                  <div className="flex items-center">
+                    <Avatar className="h-5 w-5 mr-1">
+                      <AvatarImage src={selectedIssue?.assignee.imageUrl} />
+                      <AvatarFallback>{selectedIssue?.assignee.initials}</AvatarFallback>
+                    </Avatar>
+                    {selectedIssue?.assignee.name}
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {selectedIssue?.tags && selectedIssue.tags.length > 0 && (
+              <div className="flex items-center gap-2 mt-4">
+                <Tag className="h-4 w-4 text-muted-foreground" />
+                <div className="flex flex-wrap gap-1">
+                  {selectedIssue.tags.map((tag, i) => (
+                    <Badge key={i} variant="outline" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <SaasDialogFooter>
+              <Button onClick={() => setDialogOpen(false)}>Close</Button>
+            </SaasDialogFooter>
+          </div>
+        </SaasDialog>
       )}
     </div>
   );

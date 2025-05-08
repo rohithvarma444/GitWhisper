@@ -13,6 +13,7 @@ import {
 } from '@clerk/nextjs'
 
 import { TRPCReactProvider } from "@/trpc/react";
+import { ThemeProvider } from "@/components/ui/theme-provider";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -24,13 +25,14 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable}`}>
+    <html lang="en" className={`${GeistSans.variable}`} suppressHydrationWarning>
       <body>
-        <ClerkProvider>
-          <Toaster richColors/>
-         <TRPCReactProvider>{children}</TRPCReactProvider>
-        </ClerkProvider>
-        
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ClerkProvider>
+            <Toaster richColors/>
+            <TRPCReactProvider>{children}</TRPCReactProvider>
+          </ClerkProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
