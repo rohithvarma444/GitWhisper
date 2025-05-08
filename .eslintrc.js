@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   extends: ["next/core-web-vitals"],
   rules: {
     "@next/next/no-img-element": "warn", // Downgrade to warning

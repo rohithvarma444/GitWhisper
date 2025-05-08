@@ -4,11 +4,11 @@ import { auth } from '@clerk/nextjs/server'
 import { clerkClient } from '@clerk/nextjs/server'
 import { db } from '@/server/db'
 
-type Props = {
-  params: { projectId: string }
-}
+// Import PageProps from next
+import { PageProps } from 'next/types';
 
-export default async function JoinHandler({ params }: Props) {
+// Update your Props type to extend PageProps or use PageProps directly
+export default async function JoinHandler({ params }: PageProps<{ projectId: string }>) {
   const { projectId } = params;
   const { userId } = await auth();
 
