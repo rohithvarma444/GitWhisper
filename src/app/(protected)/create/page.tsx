@@ -39,7 +39,8 @@ const CreatePage = () => {
     const interval = setInterval(() => {
       if (currentStage < stages.length - 1) {
         currentStage++;
-        setIndexingStage(stages[currentStage]);
+        // Fix: Add nullish coalescing operator to handle potential undefined
+        setIndexingStage(stages[currentStage] ?? null);
       } else {
         clearInterval(interval);
       }

@@ -46,12 +46,25 @@ const CommitLog = () => {
   );
 };
 
-const CommitCard = ({ commit }) => {
+// Add this interface at the top of your file, after the imports
+// Update the Commit interface
+interface Commit {
+  id: string;
+  commitHash: string;
+  commitMessage: string;
+  commitAuthor: string;
+  commitAuthorAvatarUrl: string;
+  commitDate: string | Date; // Accept both string and Date
+  summary: string | null;
+}
+
+// Update the CommitCard component with proper typing
+const CommitCard = ({ commit }: { commit: Commit }) => {
   const [expanded, setExpanded] = React.useState(false);
   const hasSummary = commit.summary && commit.summary.trim() !== "";
   
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
+  const formatDate = (dateString: string | Date) => {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
     return new Intl.DateTimeFormat('en-US', { 
       month: 'short', 
       day: 'numeric',
@@ -96,7 +109,7 @@ const CommitCard = ({ commit }) => {
               
               {expanded && (
                 <ul className="mt-2 space-y-1 rounded-md bg-muted/50 p-3 text-sm">
-                  {commit.summary
+                  {(commit.summary ?? "")
                     .split("\n")
                     .filter((line) => line.trim() !== "")
                     .map((line, idx) => (

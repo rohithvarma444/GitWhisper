@@ -44,8 +44,8 @@ export const getCommitHashes = async (githubUrl: string, token?: string): Promis
     return data.map(commit => ({
         commitHash: commit.sha,
         commitMessage: commit.commit.message ?? "",
-        commitAuthor: commit.commit.author.name ?? "",
-        commitDate: commit.commit.author.date ?? "",
+        commitAuthor: commit.commit?.author?.name ?? "",
+        commitDate: commit.commit?.author?.date ?? "",
         commitAuthorAvatar: commit.author?.avatar_url ?? "",
     }));
 };

@@ -115,7 +115,7 @@ const AskQuestion: React.FC = () => {
           setSaved(true);
         },
         onError: (err) => {
-          if ((err as Error).message === "Question already saved.") {
+          if ((err as unknown as Error).message === "Question already saved.") {
             toast.warning("This question is already saved.");
             setSaved(true);
           } else {
@@ -203,13 +203,13 @@ const AskQuestion: React.FC = () => {
                         )}
                       </Button>
                       <Button
-                        variant="primary"
+                        variant="default"
                         size="sm"
                         onClick={handleSaveAnswer}
-                        disabled={saveAnswerMutation.isLoading || saved}
+                        disabled={saveAnswerMutation.isPending || saved}
                         className="bg-primary hover:bg-primary/90 text-primary-foreground"
                       >
-                        {saveAnswerMutation.isLoading ? (
+                        {saveAnswerMutation.isPending ? (
                           <>
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                             Saving...
@@ -331,13 +331,13 @@ const AskQuestion: React.FC = () => {
                         )}
                       </Button>
                       <Button
-                        variant="primary"
+                        variant="default"
                         size="sm"
                         onClick={handleSaveAnswer}
-                        disabled={saveAnswerMutation.isLoading || saved}
+                        disabled={saveAnswerMutation.isPending || saved}
                         className="bg-primary hover:bg-primary/90 text-primary-foreground"
                       >
-                        {saveAnswerMutation.isLoading ? (
+                        {saveAnswerMutation.isPending ? (
                           <>
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                             Saving...

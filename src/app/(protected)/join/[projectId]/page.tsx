@@ -4,11 +4,15 @@ import { auth } from '@clerk/nextjs/server'
 import { clerkClient } from '@clerk/nextjs/server'
 import { db } from '@/server/db'
 
-// Import PageProps from next
-import { PageProps } from 'next/types';
+// Remove this incorrect import
+// import { PageProps } from 'next/types';
 
-// Update your Props type to extend PageProps or use PageProps directly
-export default async function JoinHandler({ params }: PageProps<{ projectId: string }>) {
+// Update your component definition
+export default async function JoinHandler({ 
+  params 
+}: { 
+  params: { projectId: string } 
+}) {
   const { projectId } = params;
   const { userId } = await auth();
 

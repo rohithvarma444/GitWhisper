@@ -61,7 +61,7 @@ function IssuePage() {
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: (i) => ({
+    visible: (i: number) => ({
       opacity: 1,
       y: 0,
       transition: {
@@ -223,7 +223,7 @@ function IssuePage() {
               <div className="flex items-center gap-2 mt-4">
                 <Tag className="h-4 w-4 text-muted-foreground" />
                 <div className="flex flex-wrap gap-1">
-                  {selectedIssue.tags.map((tag, i) => (
+                  {selectedIssue.tags.map((tag:any, i:number) => (
                     <Badge key={i} variant="outline" className="text-xs">
                       {tag}
                     </Badge>

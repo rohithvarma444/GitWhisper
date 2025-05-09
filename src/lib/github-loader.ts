@@ -23,7 +23,7 @@ export const loadGithubRepo = async (repoUrl: string, githubToken?: string) => {
     });
 
     return await loader.load();
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error loading GitHub repository:", error);
     
     // Provide more specific error message for rate limiting

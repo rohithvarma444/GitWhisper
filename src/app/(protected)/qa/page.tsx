@@ -30,6 +30,28 @@ interface FileReference {
   fileName?: string
   sourceCode?: string
   summary?: string
+  [key: string]: any // Add this index signature
+}
+
+interface Question {
+  id: string;
+  question: string;
+  answer: string;
+  createdAt: Date;
+  updatedAt: Date;
+  fileReferences: FileReference[] | null; // Remove undefined from the type
+  projectId: string;
+  userId: string;
+  user: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string;
+    imageUrl: string | null;
+    credits: number;
+    createdAt: Date;
+    updatedAt: Date;
+  };
 }
 
 function QaPage() {
@@ -42,7 +64,7 @@ function QaPage() {
     }
   }, [projectId, router]);
 
-  const { data: questions } = api.project.getQuestions.useQuery({ projectId })
+  const { data: questions } = api.project.getQuestions.useQuery<Question[]>({ projectId })
   const [questionIndex, setQuestionIndex] = useState(0)
   const [openDialog, setOpenDialog] = useState(false)
   const [isCompact, setIsCompact] = useState(false)
@@ -67,8 +89,8 @@ function QaPage() {
     setSelectedFile(null)
   }
   
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString)
+  const formatDate = (dateString: string | Date): string => {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
     return new Intl.DateTimeFormat('en-US', { 
       month: 'short', 
       day: 'numeric',
@@ -227,12 +249,14 @@ function QaPage() {
             <div className="px-6 py-4">
               <div className="prose max-w-none mb-6">
                 <div className="p-4 bg-card rounded-lg border border-border shadow-sm">
+                  // Add proper null checking for question.answer
                   <div className="text-card-foreground leading-relaxed">
-                    <ReactMarkdown>{question.answer}</ReactMarkdown>
+                    <ReactMarkdown>{question?.answer || ""}</ReactMarkdown>
                   </div>
                 </div>
                 <div className="flex space-x-2 mt-4">
-                  <Button variant="outline" size="sm" onClick={() => copyToClipboard(question.answer)}>
+                  // Fix the copy button to handle undefined
+                  <Button variant="outline" size="sm" onClick={() => copyToClipboard(question?.answer || "")}>
                     {copied ? (
                       <>
                         <Check className="h-4 w-4 mr-2 text-green-500" />
@@ -250,7 +274,7 @@ function QaPage() {
             </div>
 
             {/* File references section with improved styling */}
-            {Array.isArray(question.fileReferences) && question.fileReferences.length > 0 && (
+            {question && Array.isArray(question.fileReferences) && question.fileReferences.length > 0 && (
               <div className="px-6 pb-6">
                 <div className="border-t border-border pt-4 mt-2">
                   <h3 className="text-sm font-semibold mb-3 flex items-center gap-1">
@@ -279,6 +303,7 @@ function QaPage() {
 
                   {/* File content with improved styling */}
                   {selectedFile &&
+                    question && // Add this check
                     (Array.isArray(question.fileReferences)
                       ? ((question.fileReferences as unknown[]).filter((ref): ref is FileReference =>
                           ref !== null &&

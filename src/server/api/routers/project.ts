@@ -28,7 +28,7 @@ export const projectRouter = createTRPCRouter({
 
         await tx.userToProject.create({
           data: {
-            userId: ctx.user.userId,
+            userId: ctx.user.userId || "",
             projectId: createdProject.id,
           },
         });
