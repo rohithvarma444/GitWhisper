@@ -29,7 +29,7 @@ function BillingPage() {
   const netAmount = creditsToBuy * 2;
 
   const handleSliderChange = (value: number[]) => {
-    setCreditsToBuy(value[0]);
+    setCreditsToBuy(value[0] ?? 100); // Use nullish coalescing to provide a default
   };
 
   const { data: transactions = [] } = api.project.getTransactions.useQuery({
