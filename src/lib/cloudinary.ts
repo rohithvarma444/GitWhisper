@@ -24,7 +24,6 @@ export const uploadMeetingAudio = async (
       formData.append('upload_preset', UPLOAD_PRESET);
       formData.append('resource_type', 'video');
 
-      // Note: Using XMLHttpRequest for upload progress tracking. Can migrate to fetch + streams if needed.
       const xhr = new XMLHttpRequest();
 
       if (setProgress) {

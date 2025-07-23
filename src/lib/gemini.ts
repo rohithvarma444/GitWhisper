@@ -9,13 +9,12 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: resolve(__dirname, '../../.env') });
 
 
-// Initialize the GoogleGenerativeAI instance with the API key
 const gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const model = gemini.getGenerativeModel({
-    model: 'gemini-1.5-flash'
+    model: 'gemini-2.5-flash'
 });
 
 export const aiSummariseCommit = async (diff: string) => {

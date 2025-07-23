@@ -3,7 +3,6 @@ import { db } from '@/server/db';
 import axios from 'axios';
 import { aiSummariseCommit } from './gemini';
 
-// Add the missing type definition
 type CommitInfo = {
     commitHash: string;
     commitMessage: string;
@@ -12,21 +11,18 @@ type CommitInfo = {
     commitAuthorAvatar: string;
 };
 
-// Add the missing parseGithubUrl function
 const parseGithubUrl = (url: string): [string, string] => {
     const [owner, repo] = url.split('/').slice(-2);
     if (!owner || !repo) throw new Error("Invalid GitHub URL");
     return [owner, repo];
 };
 
-// Update the octokit initialization to use the token more reliably
 export const createOctokit = (token?: string) => {
   return new Octokit({
     auth: token || process.env.GITHUB_TOKEN,
   });
 };
 
-// Replace the existing octokit constant with a function
 export const getOctokit = (token?: string) => {
   return createOctokit(token);
 };
@@ -38,7 +34,7 @@ export const getCommitHashes = async (githubUrl: string, token?: string): Promis
     const { data } = await octokit.rest.repos.listCommits({ 
         owner, 
         repo,
-        per_page: 10 // Limit to top 10 commits
+        per_page: 10 
     });
 
     return data.map(commit => ({
