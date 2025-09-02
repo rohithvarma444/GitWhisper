@@ -124,7 +124,7 @@ const CreatePage = () => {
                   <Loader2 className="h-5 w-5 text-primary animate-spin" />
                   <h3 className="font-medium text-primary">{getStageMessage()}</h3>
                 </div>
-                <div className="w-full bg-background rounded-full h-2 mb-2">
+                <div className="w-full bg-background rounded-full h-2 mb-3">
                   <div 
                     className="bg-primary h-2 rounded-full transition-all duration-500" 
                     style={{ 
@@ -135,9 +135,25 @@ const CreatePage = () => {
                     }}
                   ></div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  This process may take a few minutes. Please don't close this window.
-                </p>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    This process may take a few minutes. Please don&apos;t close this window.
+                  </p>
+                  <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <div className="text-green-600 dark:text-green-400 text-lg">☕</div>
+                      <div>
+                        <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                          Sit back and relax!
+                        </p>
+                        <p className="text-xs text-green-700 dark:text-green-300">
+                          We&apos;ll send you an email notification once your repository has been successfully indexed. 
+                          You can close this window and check your inbox.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
             
@@ -213,7 +229,14 @@ const CreatePage = () => {
               <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
               <p>
                 If indexing fails, you can still explore previously indexed repositories. 
-                We're continuously improving our infrastructure to provide better service.
+                We&apos;re continuously improving our infrastructure to provide better service.
+              </p>
+            </div>
+            <div className="flex items-start gap-2 text-xs text-blue-600 dark:text-blue-400">
+              <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
+              <p>
+                <strong>Pro tip:</strong> You&apos;ll receive an email notification when indexing is complete, 
+                so you can safely close this window and check your inbox later!
               </p>
             </div>
           </CardFooter>

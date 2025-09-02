@@ -47,7 +47,7 @@ export const getCommitHashes = async (githubUrl: string, token?: string): Promis
 };
 
 
-export const pollCommits = async (projectId: string, token?: string) => {
+export const pollCommits = async (projectId: string, token?: string, userEmail?: string, userName?: string) => {
     try {
         const { project, githubUrl } = await getProjectDetails(projectId);
         const commits = await getCommitHashes(githubUrl, token);
@@ -58,13 +58,20 @@ export const pollCommits = async (projectId: string, token?: string) => {
             return { added: 0 };
         }
 
-        const summaries = await Promise.allSettled(
-            newCommits.map(commit => summariseCommit(githubUrl, commit.commitHash))
-        );
-
-        const processed = summaries.map(res =>
-            res.status === 'fulfilled' ? res.value : ""
-        );
+        // Process commits sequentially to respect rate limits
+        const processed: string[] = [];
+        for (let i = 0; i < newCommits.length; i++) {
+            const commit = newCommits[i];
+            console.log(`📝 Processing commit ${i + 1}/${newCommits.length}: ${commit.commitHash.substring(0, 8)}`);
+            
+            try {
+                const summary = await summariseCommit(githubUrl, commit.commitHash);
+                processed.push(summary);
+            } catch (error) {
+                console.error(`❌ Failed to process commit ${commit.commitHash}:`, error);
+                processed.push(""); // Add empty summary for failed commits
+            }
+        }
 
         const inserted = await db.commit.createMany({
             data: newCommits.map((commit, index) => ({
@@ -77,6 +84,28 @@ export const pollCommits = async (projectId: string, token?: string) => {
                 summary: processed[index],
             })),
         });
+
+        // Send final email with commit information if this is the initial indexing
+        if (userEmail && userName && newCommits.length > 0) {
+            try {
+                const { sendIndexingCompletionEmail, IndexingCompletionEmailData } = await import('./email');
+                
+                const emailData: IndexingCompletionEmailData = {
+                    userName,
+                    projectName: githubUrl.split('/').pop() || 'Repository',
+                    githubUrl,
+                    totalFiles: 0, // Will be updated from the file indexing
+                    totalCommits: inserted.count,
+                    processingTime: 'Completed',
+                    userEmail,
+                };
+                
+                await sendIndexingCompletionEmail(emailData);
+                console.log("📧 Final completion email sent with commit information");
+            } catch (error) {
+                console.error("❌ Failed to send final completion email:", error);
+            }
+        }
 
         return { added: inserted.count };
     } catch (err) {

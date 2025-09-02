@@ -17,8 +17,18 @@ const model = gemini.getGenerativeModel({
     model: 'gemini-2.5-flash'
 });
 
-export const aiSummariseCommit = async (diff: string) => {
+// Rate limiting configuration
+const RATE_LIMIT_DELAY = 7000; // 7 seconds between requests (well under 10/minute limit)
+const MAX_RETRIES = 3;
+const RETRY_DELAYS = [2000, 5000, 10000]; // Exponential backoff delays
+
+export const aiSummariseCommit = async (diff: string, retryCount = 0): Promise<string> => {
   try {
+    // Add delay to respect rate limits
+    if (retryCount === 0) {
+      await sleep(RATE_LIMIT_DELAY);
+    }
+
     const prompt = `
 You are a seasoned software engineer specializing in Git diff analysis. Your mission is to dissect the provided Git diff and produce a concise, professional summary highlighting the key changes. Present your summary as bullet points, with each point separated by a newline character (\`\\n\`). Focus on the purpose, impact, and clarity of the changes.
 
@@ -60,14 +70,30 @@ Now, please provide your well-structured and insightful summary of the provided 
     const result = await response.response.text();
     console.log("✅ Commit summary generated");
     return result;
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Error generating commit summary:", error);
+    
+    // Check if it's a rate limit error (429)
+    if (error?.status === 429 && retryCount < MAX_RETRIES) {
+      const delay = RETRY_DELAYS[retryCount] || 10000;
+      console.log(`🔄 Rate limit hit, retrying in ${delay}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+      await sleep(delay);
+      return aiSummariseCommit(diff, retryCount + 1);
+    }
+    
+    // For other errors or max retries reached, return empty string
+    console.warn("⚠️ Max retries reached or non-rate-limit error, skipping AI summary");
     return "";
   }
 };
 
-export const summariseCode = async (doc: Document): Promise<string> => {
+export const summariseCode = async (doc: Document, retryCount = 0): Promise<string> => {
   console.log("🔹 Generating summarization for source code...");
+
+  // Add delay to respect rate limits
+  if (retryCount === 0) {
+    await sleep(RATE_LIMIT_DELAY);
+  }
 
   const codeSnippet = doc.pageContent.slice(0, 10000); 
 
@@ -100,8 +126,19 @@ This file implements a REST API handler for user authentication, including login
   try {
     const embeddings = await model.generateContent([prompt]);
     return await embeddings.response.text();
-  } catch (error) {
+  } catch (error: any) {
     console.error(`❌ Error generating summary for ${doc.metadata.source}:`, error);
+    
+    // Check if it's a rate limit error (429)
+    if (error?.status === 429 && retryCount < MAX_RETRIES) {
+      const delay = RETRY_DELAYS[retryCount] || 10000;
+      console.log(`🔄 Rate limit hit for file summary, retrying in ${delay}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+      await sleep(delay);
+      return summariseCode(doc, retryCount + 1);
+    }
+    
+    // For other errors or max retries reached, return fallback message
+    console.warn(`⚠️ Max retries reached for file summary, using fallback for ${doc.metadata.source}`);
     return "Error generating summary.";
   }
 };

@@ -49,54 +49,6 @@ model Project {
   UserToProject       UserToProject[]
 }
 
-
-
-model EmailNotification {
-  id          String               @id @default(cuid())
-  userId      String
-  projectId   String
-  jobId       String
-  emailType   EmailNotificationType
-  status      EmailStatus          @default(PENDING)
-  sentAt      DateTime?
-  errorMessage String?
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
-  
-  subject     String
-  htmlContent String
-  textContent String?
-  
-  @@map("email_notifications")
-}
-
-enum IndexingJobType {
-  INITIAL_INDEX     
-  COMMIT_REFRESH    
-  FULL_REINDEX     
-}
-
-enum IndexingStatus {
-  QUEUED      
-  PROCESSING  
-  COMPLETED   
-  FAILED      
-  CANCELLED   
-}
-
-enum EmailNotificationType {
-  INDEXING_COMPLETED       
-  INDEXING_FAILED          
-  COMMIT_REFRESH_COMPLETED
-}
-
-enum EmailStatus {
-  PENDING   
-  SENT      
-  FAILED   
-}
-
-
 model UserToProject {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())

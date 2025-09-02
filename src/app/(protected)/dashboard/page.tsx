@@ -26,20 +26,25 @@ const DashboradPage = () => {
   }, [project, router]);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       {/* Main content */}
-      <div className="flex-1 px-4 py-6 space-y-6 max-w-7xl mx-auto">
+      <div className="container mx-auto px-4 py-6 space-y-6 max-w-7xl">
         {/* Project GitHub Link */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 bg-primary text-primary-foreground p-4 rounded-md">
-            <Github className="size-5" />
-            <span>This project is linked to</span>
-            <Link href={project?.githubUrl || "/"} className="underline">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-primary text-primary-foreground p-3 sm:p-4 rounded-md w-full lg:w-auto">
+            <div className="flex items-center gap-2">
+              <Github className="size-4 sm:size-5" />
+              <span className="text-sm sm:text-base">This project is linked to</span>
+            </div>
+            <Link 
+              href={project?.githubUrl || "/"} 
+              className="underline text-sm sm:text-base break-all sm:break-normal"
+            >
               {project?.githubUrl}
             </Link>
-            <ExternalLink className="size-4" />
+            <ExternalLink className="size-3 sm:size-4 flex-shrink-0" />
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full lg:w-auto">
             <Invite />
             <TeamMembers />
             <ArchiveButton />
@@ -47,17 +52,17 @@ const DashboradPage = () => {
         </div>
 
         {/* AskQuestion & MeetingCard */}
-        <div className="flex flex-col sm:flex-row gap-6 w-full">
-          <div className="w-full sm:w-1/2 rounded-lg shadow-md bg-card text-card-foreground p-4 border border-border">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="rounded-lg shadow-md bg-card text-card-foreground p-4 sm:p-6 border border-border">
             <AskQuestion />
           </div>
-          <div className="w-full sm:w-1/2 rounded-lg shadow-md bg-card text-card-foreground p-4 border border-border">
+          <div className="rounded-lg shadow-md bg-card text-card-foreground p-4 sm:p-6 border border-border">
             <MeetingCard />
           </div>
         </div>
 
         {/* Commit Log */}
-        <div className="rounded-lg shadow-md bg-card text-card-foreground p-4 border border-border">
+        <div className="rounded-lg shadow-md bg-card text-card-foreground p-4 sm:p-6 border border-border">
           <CommitLog />
         </div>
       </div>

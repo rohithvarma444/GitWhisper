@@ -37,8 +37,17 @@ export const projectRouter = createTRPCRouter({
       });
 
       try {
-        await indexGithubRepo(project.id, input.githubUrl, input.githubToken);
-        await pollCommits(project.id);
+        // Get user information for email notification
+        const user = await ctx.db.user.findUnique({
+          where: { id: ctx.user.userId },
+          select: { email: true, firstName: true, lastName: true }
+        });
+
+        const userName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User' : 'User';
+        const userEmail = user?.email;
+
+        await indexGithubRepo(project.id, input.githubUrl, input.githubToken, userEmail, userName);
+        await pollCommits(project.id, input.githubToken, userEmail, userName);
         return project;
       } catch (error) {
         await ctx.db.userToProject.deleteMany({
