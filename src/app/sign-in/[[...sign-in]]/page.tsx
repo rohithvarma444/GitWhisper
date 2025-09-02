@@ -128,10 +128,7 @@ export default function Page() {
               {/* Additional sign-in options */}
               <div className="mt-6 text-center">
                 <p className="text-gray-500 text-sm">
-                  // Line 130: Replace ' with &apos;
-                  // Example:
-                  // Change: Don't have an account?
-                  // To: Don&apos;t have an account?
+                  Don&apos;t have an account?{" "}
                   <a href="/sign-up" className="text-black hover:text-gray-800 font-medium">
                     Create one now
                   </a>
